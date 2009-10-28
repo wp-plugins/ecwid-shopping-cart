@@ -38,9 +38,9 @@ function ecwid_store_activate() {
 		<!-- End of special code. -->
 
 		<!-- Feel free to modify the code below: add new widgets, alter the existing ones. -->
-		<script type='text/javascript'> xCategories(); </script>
-		<script type='text/javascript'> xProductBrowser("itemsPerRow=3","itemsPerPage=9","searchResultsItemsPerPage=10"); </script>
-		<script type='text/javascript'> xMinicart("style=","layout=attachToCategories"); </script>
+		<div><script type='text/javascript'> xCategories(); </script></div>
+		<div><script type='text/javascript'> xProductBrowser("itemsPerRow=3","itemsPerPage=9","searchResultsItemsPerPage=10"); </script></div>
+		<div><script type='text/javascript'> xMinicart("style=","layout=attachToCategories"); </script></div>
 		<!-- Ecwid code end -->
 
 EOT;
