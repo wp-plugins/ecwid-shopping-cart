@@ -80,7 +80,7 @@ function ecwid_store_deactivate() {
 	$ecwid_page_id = get_option("ecwid_store_page_id");
 	$_tmp_page = null;
 	if (!empty($ecwid_page_id) and ($ecwid_page_id > 0)) {
-		$_tmp_page = get_page($id);
+		$_tmp_page = get_page($ecwid_page_id);
 		if ($_tmp_page !== null) {
 			$my_post = array();
 			$my_post['ID'] = $ecwid_page_id;
