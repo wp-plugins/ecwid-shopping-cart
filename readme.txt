@@ -53,7 +53,7 @@ Links
 - Knowledge Base: [http://kb.ecwid.com](http://kb.ecwid.com)
 
 == Changelog ==
-= 0.9.1 =
+= 1.0 =
 - [!] The "Single Sign-on" feature didn't work properly in some cases. Fixed.
 
 = 0.9 =
