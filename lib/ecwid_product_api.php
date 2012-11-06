@@ -8,7 +8,7 @@ class EcwidProductApi {
 	var $error_code = '';
 
 	var $ECWID_PRODUCT_API_ENDPOINT = "http://app.ecwid.com/api/v1";
-	
+
 	function __construct($store_id) {
 		$this->store_id = intval($store_id);
 	}
@@ -29,8 +29,7 @@ class EcwidProductApi {
 	}
 
 	function internal_fetch_url_libcurl($url) {
-		if (intval($timeout) <= 0)
-			$timeout = 90;
+		$timeout = 90;
 		if (!function_exists('curl_init'))
 			return array("code"=>"0","data"=>"The libcurl module isn't installed on your server. Please contact  your hosting or server administrator to have it installed.");
 		$headers[] = "Content-Type: application/x-www-form-urlencoded";
@@ -56,6 +55,7 @@ class EcwidProductApi {
 	}
 
 	function process_request($url) {
+
 		$result = $this->internal_fetch_url_libcurl($url);
 		if ($result['code'] == 200) {
 			$this->error = '';
@@ -112,7 +112,10 @@ class EcwidProductApi {
 			foreach ($params as $param) {
 				$alias = $param["alias"];
 				$action = $param["action"];
-				$action_params = $param["params"];
+
+                if (isset($param['params']))
+    				$action_params = $param["params"];
+
 				if (!empty($api_url))
 					$api_url .= "&";
 

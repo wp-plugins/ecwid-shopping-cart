@@ -4,14 +4,14 @@ Plugin Name: Ecwid Shopping Cart
 Plugin URI: http://www.ecwid.com/ 
 Description: Ecwid is a free full-featured shopping cart. It can be easily integreted with any Wordpress blog and takes less than 5 minutes to set up.
 Author: Ecwid Team
-Version: 1.1 
+Version: 1.2 
 Author URI: http://www.ecwid.com/
 */
 
 register_activation_hook( __FILE__, 'ecwid_store_activate' );
 register_deactivation_hook( __FILE__, 'ecwid_store_deactivate' );
 
-if (!empty($_GET['ecwid_product_id']) || !empty($_GET['ecwid_category_id'])) {
+if (!empty($_GET['_escaped_fragment_'])) {
     remove_action( 'wp_head','rel_canonical');
 }
 define("APP_ECWID_COM","app.ecwid.com");
@@ -27,22 +27,38 @@ if ( is_admin() ){
   add_shortcode('ecwid_searchbox', 'ecwid_searchbox_shortcode');
   add_shortcode('ecwid_categories', 'ecwid_categories_shortcode');
   add_shortcode('ecwid_productbrowser', 'ecwid_productbrowser_shortcode');
-  add_filter('wp_title', 'ecwid_seo_title', 0 );
-  $ecwid_seo_product_title = '';
+  add_filter('wp_title', 'ecwid_seo_title', 0);
+  add_action('wp_head', 'ecwid_ajax_crawling_fragment');
+  $ecwid_seo_title = '';
+}
+
+function ecwid_ajax_crawling_fragment() {
+    if (ecwid_is_api_enabled() && !isset($_GET['_escaped_fragment_']))
+        echo '<meta name="fragment" content="!">' . PHP_EOL; 
 }
 
 function ecwid_seo_title($content) {
-    $ecwid_noscript_seo_catalog = get_option('ecwid_noscript_seo_catalog');
-    if (!empty($_GET['ecwid_product_id']) && !empty($ecwid_noscript_seo_catalog)) {  
-    $ecwid_seo_product_title = '';
-    include_once "lib/ecwid_product_api.php";
-    $ecwid_store_id = intval(get_ecwid_store_id());
-	$api = new EcwidProductApi($ecwid_store_id);
-    $ecwid_product = $api->get_product($_GET['ecwid_product_id']);  
-    $ecwid_seo_product_title = $ecwid_product['name'];
-    return $ecwid_seo_product_title." | ";
-  }
-  else {
+  if (isset($_GET['_escaped_fragment_']) && ecwid_is_api_enabled()) {
+    $params = ecwid_parse_escaped_fragment($_GET['_escaped_fragment_']);
+    $ecwid_seo_title = '';
+
+	$api = ecwid_new_product_api();
+
+    if (isset($params['mode']) && !empty($params['mode'])) {
+        if ($params['mode'] == 'product') {
+            $ecwid_product = $api->get_product($params['id']);
+            $ecwid_seo_title = $ecwid_product['name'];
+        } elseif ($params['mode'] == 'category') {
+        // define category's title. no API for that QQ 
+        }
+    }
+
+    if (!empty($ecwid_seo_title))
+        return $ecwid_seo_title . " | " . $content;
+    else
+        return $content;
+
+  } else {
     return $content;
   }  
 }
@@ -101,6 +117,19 @@ EOT;
     }
 }
 
+function ecwid_parse_escaped_fragment($escaped_fragment) {
+    $fragment = urldecode($escaped_fragment);
+
+    $return = array();
+
+    if (preg_match('/^(\/~\/)([a-z]+)\/(.*)$/', $fragment, $matches)) {
+        parse_str($matches[3], $return);
+        $return['mode'] = $matches[2];
+    } 
+
+    return $return;
+}
+
 function ecwid_productbrowser_shortcode() {
     global $ecwid_seo_product_title;
     $store_id = get_ecwid_store_id();
@@ -116,8 +145,6 @@ function ecwid_productbrowser_shortcode() {
 
     $ecwid_mobile_catalog_link = get_option('ecwid_mobile_catalog_link');
     $ecwid_default_category_id = get_option('ecwid_default_category_id');
-
-    $ecwid_noscript_seo_catalog = get_option('ecwid_noscript_seo_catalog');
 
     if (empty($ecwid_pb_categoriesperrow)) {
         $ecwid_pb_categoriesperrow = 3;
@@ -152,36 +179,40 @@ function ecwid_productbrowser_shortcode() {
         $ecwid_default_category_str = ',"defaultCategoryId='. $ecwid_default_category_id .'"';
     }
 
-    
     $ecwid_open_product = '';
-    if (!empty($ecwid_noscript_seo_catalog)) {
-      
-      if (!empty($_GET['ecwid_product_id'])) {
-       $ecwid_open_product = '<script type="text/javascript"> if (!document.location.hash) document.location.hash = "ecwid:category=0&mode=product&product='. intval($_GET['ecwid_product_id']) .'";</script>';
-      } elseif (!empty($_GET['ecwid_category_id'])) {
-        $ecwid_default_category_str = ',"defaultCategoryId='. intval($_GET['ecwid_category_id']) .'"';
-      }
-      include_once(ABSPATH . 'wp-content/plugins/ecwid-shopping-cart/lib/ecwid_catalog.php');
-     
-      $noscript_str = '<div id="ecwid-inline-catalog">'. show_ecwid_catalog($store_id) . '</div>';
+    $plain_content = '';
+
+    if (ecwid_is_api_enabled()) {
+        if (isset($_GET['_escaped_fragment_'])) {
+            $params = ecwid_parse_escaped_fragment($_GET['_escaped_fragment_']);
+            include_once WP_PLUGIN_DIR . '/ecwid-shopping-cart/lib/EcwidCatalog.php';
+
+            $ecwid_page_id = get_option("ecwid_store_page_id");
+            $page_url = get_page_link($ecwid_page_id);
+
+            $catalog = new EcwidCatalog($store_id, $page_url); 
+
+            if (isset($params['mode']) && !empty($params['mode'])) {
+                if ($params['mode'] == 'product') {
+                    $plain_content = $catalog->get_product($params['id']);
+                    $plain_content .= '<script type="text/javascript"> if (!document.location.hash) document.location.hash = "!/~/product/id='. intval($params['id']) .'";</script>';
+                } elseif ($params['mode'] == 'category') {
+                    $plain_content = $catalog->get_category($params['id']);
+                    $ecwid_default_category_str = ',"defaultCategoryId=' . $params['id'] . '"';
+                }
+            } else {
+                $plain_content = $catalog->get_category(0);
+            }
+        }
     } else {
-      $noscript_str = "<div id=\"ecwid-inline-catalog\">Your browser does not support JavaScript.<a href=\"{$ecwid_mobile_catalog_link}\">HTML version of this store</a></div>";
+        $plain_content = '<noscript>Your browser does not support JavaScript.<a href="' . $ecwid_mobile_catalog_link .'">HTML version of this store</a></noscript>';
     }
-    
-        $s = <<<EOT
-{$noscript_str}
-<script type="text/javascript"> 
-xProductBrowser(
-  "categoriesPerRow=$ecwid_pb_categoriesperrow",
-  "views=grid($ecwid_pb_productspercolumn_grid,$ecwid_pb_productsperrow_grid) list($ecwid_pb_productsperpage_list) table($ecwid_pb_productsperpage_table)",
-  "categoryView=$ecwid_pb_defaultview",
-  "searchView=$ecwid_pb_searchview",
-  "id=ecwid-inline-catalog",
-  "style="$ecwid_default_category_str);
-</script>
-$ecwid_open_product
+
+    $s = <<<EOT
+<div> <script type="text/javascript"> xProductBrowser("categoriesPerRow=$ecwid_pb_categoriesperrow","views=grid($ecwid_pb_productspercolumn_grid,$ecwid_pb_productsperrow_grid) list($ecwid_pb_productsperpage_list) table($ecwid_pb_productsperpage_table)","categoryView=$ecwid_pb_defaultview","searchView=$ecwid_pb_searchview","style="$ecwid_default_category_str);</script></div>
+{$plain_content}
 EOT;
-        return $s;
+    return $s;
 }
 
 
@@ -213,8 +244,9 @@ EOT;
     
     add_option("ecwid_mobile_catalog_link", '', '', 'yes');  
     add_option("ecwid_default_category_id", '', '', 'yes');  
-      
-    add_option("ecwid_noscript_seo_catalog", '', '', 'yes');        
+     
+    add_option('ecwid_is_api_enabled', 'on', '', 'yes');
+    add_option('ecwid_api_check_time', 0, '', 'yes');
    
     add_option("ecwid_sso_secret_key", '', '', 'yes'); 
     
@@ -290,10 +322,13 @@ function ecwid_settings_api_init() {
     
     register_setting('ecwid_options_page', 'ecwid_mobile_catalog_link');
     register_setting('ecwid_options_page', 'ecwid_default_category_id');
-    
-    register_setting('ecwid_options_page', 'ecwid_noscript_seo_catalog');
    
-    register_setting('ecwid_options_page', 'ecwid_sso_secret_key'); 
+    register_setting('ecwid_options_page', 'ecwid_sso_secret_key');
+
+    if (isset($_POST['ecwid_store_id'])) {
+        update_option('ecwid_is_api_enabled', 'off');
+        update_option('ecwid_api_check_time', 0);
+    }
 } 
 
 function ecwid_options_add_page() {
@@ -316,7 +351,6 @@ function ecwid_options_do_page() {
     
     $ecwid_mobile_catalog_link = get_option('ecwid_mobile_catalog_link');
     $ecwid_default_category_id = get_option('ecwid_default_category_id');
-    $ecwid_noscript_seo_catalog = get_option('ecwid_noscript_seo_catalog');
     $ecwid_enable_ssl = get_option('ecwid_enable_ssl');
     $ecwid_page_id = get_option("ecwid_store_page_id");
   
@@ -325,55 +359,7 @@ function ecwid_options_do_page() {
     $ecwid_noscript_seo_catalog_disabled = false;
     $ecwid_noscript_seo_catalog_message = '<a href="http://kb.ecwid.com/Inline-SEO-Catalog" target="_blank">How it works</a>';
     $ecwid_settings_message = false;
-    
-    if ($store_id == 1003) {
-      $ecwid_noscript_seo_catalog_disabled = true;
-      $ecwid_noscript_seo_catalog_message = 'This option requires using Ecwid Product API. In order to enable it, please set up your Store ID first. Please note, that API is available for the <a href="http://www.ecwid.com/compare-plans.html" target="_blank">paid Ecwid accounts</a> only.';
-      if (!empty($ecwid_noscript_seo_catalog)) {
-        update_option('ecwid_noscript_seo_catalog', '');
-        $ecwid_noscript_seo_catalog = '';
-      }
-    } # demo store id
-    
-    else if ($store_id != 1003 && empty($ecwid_noscript_seo_catalog)) {
-      $ecwid_noscript_seo_catalog_message = '<a href="http://kb.ecwid.com/Inline-SEO-Catalog" target="_blank">How Inline Seo Catalog works</a>. This option requires using Ecwid API which is available for the <a href="http://www.ecwid.com/compare-plans.html" target="_blank">paid accounts</a> only.';
-    }
-    else if ($store_id != 1003 && !empty($ecwid_noscript_seo_catalog)) {
-    
-      include_once(ABSPATH . 'wp-content/plugins/ecwid-shopping-cart/lib/ecwid_product_api.php');
-      $api = new EcwidProductApi($store_id);
-      if (!empty($api)) {
-        $store_profile = $api->get_profile();
-        
-        if ($api->error_code == 403) {
-          #free account, consider upgrade
-          $ecwid_noscript_seo_catalog_disabled = true;
-          $ecwid_noscript_seo_catalog_message = 'This option requires using Ecwid API which is available for the <a href="http://www.ecwid.com/compare-plans.html" target="_blank">paid accounts</a> only. Please consider upgrading your account to use it.'; 
-          update_option('ecwid_noscript_seo_catalog', '');
-          $ecwid_noscript_seo_catalog = '';
-          $ecwid_settings_message = 'The "Inline HTML catalog" option requires using Ecwid API which is available for the <a href="http://www.ecwid.com/compare-plans.html" target="_blank">paid accounts</a> only. Please consider upgrading your account to use it.';
-          
-        } 
-        else if ($api->error_code == 404) {
-          $ecwid_noscript_seo_catalog_message = 'We cannot connect to Ecwid servers using your Store ID. Is it correct?'; 
-          $ecwid_settings_message = 'We cannot connect to Ecwid servers using your Store ID. Is it correct?';
-         
-        }
-       
-        else if($api->error_code != '') {
-          $ecwid_noscript_seo_catalog_message = 'Connection to Ecwid servers failed. Error code: '. $api->error_code; 
-          $ecwid_settings_message = 'Connection to Ecwid servers failed. Error code: '. $api->error_code;
-          if ($api->error_code == 0) {
-            $ecwid_noscript_seo_catalog_message .= '&nbsp;'. $api->error; 
-            $ecwid_settings_message .= '&nbsp;'. $api->error;
-          }
-        }
-      } # no $api
-      else {
-         $ecwid_settings_message = 'We cannot include some essential files of Ecwid Shopping Cart module. It looks like it\'s corrupted. Try to re-install the module and contact Ecwid Team if it doesn\'t help.';
-      }
-    }
-        
+   
     $_tmp_page = null;
     $disabled = false;
     if (!empty($ecwid_page_id) and ($ecwid_page_id > 0)) {
@@ -477,21 +463,12 @@ function ecwid_options_do_page() {
 
          <tr><th colspan="2" style="padding:0px;margin:0px;"><h3 style="padding:0px;margin:0px;">SEO</h3></th></tr>
 
-                <tr><th scope="row"><label for="ecwid_noscript_seo_catalog">
-Enable the inline plain-HTML catalog(better SEO)</label>
-</th>
-    <td><input id="ecwid_noscript_seo_catalog" type="checkbox" name="ecwid_noscript_seo_catalog" <?php if (!empty($ecwid_noscript_seo_catalog)) echo "checked=\"checked\""; if(!empty($ecwid_noscript_seo_catalog_disabled)) echo "disabled=\"disabled\""; ?> />
-&nbsp;&nbsp;&nbsp;&nbsp;<img src="//www.ecwid.com/wp-content/uploads/ecwid_wp_attention.gif" alt="">&nbsp; <?php echo $ecwid_noscript_seo_catalog_message; ?>
-
-</td>            </tr>    
-                                      <tr><th scope="row"><label for="ecwid_mobile_catalog_link">
-Full link to your mobile catalog</label>
-</th>
-    <td><input id="ecwid_mobile_catalog_link" type="text" name="ecwid_mobile_catalog_link" value="<?php  echo $ecwid_mobile_catalog_link; ?>" />
-&nbsp;&nbsp;&nbsp;&nbsp;<img src="//www.ecwid.com/wp-content/uploads/ecwid_wp_attention.gif" alt="">&nbsp;For example <em>http://mdemo.ecwid.com</em>.&nbsp;<a href="http://kb.ecwid.com/Mobile-Catalog" target="_blank">Information about Ecwid and mobile catalogs.</a>
-
-</td>            </tr>
-            
+         <tr>
+            <th scope="row"><label for="ecwid_mobile_catalog_link">Full link to your mobile catalog</label></th>
+            <td><input id="ecwid_mobile_catalog_link" type="text" name="ecwid_mobile_catalog_link" value="<?php  echo $ecwid_mobile_catalog_link; ?>" />
+&nbsp;&nbsp;&nbsp;&nbsp;<img src="//www.ecwid.com/wp-content/uploads/ecwid_wp_attention.gif" alt="">&nbsp;For example <em>http://mdemo.ecwid.com</em>.&nbsp;<a href="http://kb.ecwid.com/Mobile-Catalog" target="_blank">Information about Ecwid and mobile catalogs.</a></td>
+         </tr>
+             
                         <tr><th colspan="2" style="padding:0px;margin:0px;"><h3 style="padding:0px;margin:0px;">Advanced</h3></th></tr>
            
                 <tr><th scope="row"><label for="ecwid_enable_ssl">
@@ -910,4 +887,32 @@ function ecwid_hmacsha1($data, $key) {
     }
 }
 
+function ecwid_is_api_enabled()
+{
+    $ecwid_is_api_enabled = get_option('ecwid_is_api_enabled');
+    $ecwid_api_check_time = get_option('ecwid_api_check_time');
+    $now = time();
+
+    if ($now > ($ecwid_api_check_time + 60 * 60 * 3)) {
+        // check whether API is available once in 3 hours
+        $ecwid = ecwid_new_product_api();
+        $ecwid_is_api_enabled = ($ecwid->is_api_enabled() ? 'on' : 'off');
+        update_option('ecwid_is_api_enabled', $ecwid_is_api_enabled);
+        update_option('ecwid_api_check_time', $now);
+    }
+
+    if ('on' == $ecwid_is_api_enabled)
+        return true;
+    else
+        return false;
+}
+
+function ecwid_new_product_api()
+{
+    include_once WP_PLUGIN_DIR . '/ecwid-shopping-cart/lib/ecwid_product_api.php';
+    $ecwid_store_id = intval(get_ecwid_store_id());
+    $api = new EcwidProductApi($ecwid_store_id);
+
+    return $api;
+}
 ?>
