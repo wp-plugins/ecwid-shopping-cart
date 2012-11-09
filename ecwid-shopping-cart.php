@@ -32,6 +32,50 @@ if ( is_admin() ){
   add_action('wp_head', 'ecwid_meta');
   $ecwid_seo_title = '';
 }
+add_action('admin_bar_menu', 'add_ecwid_admin_bar_node', 1000);
+
+
+function add_ecwid_admin_bar_node() {
+    global $wp_admin_bar;
+     if ( !is_super_admin() || !is_admin_bar_showing() )
+        return;
+    //add parent menu node
+    $wp_admin_bar->add_menu( array(
+        'id' => 'ecwid_main',
+        'title' => '<img src="'.plugins_url().'/ecwid-shopping-cart/ecwid_menu_icon.png" style="width: 22px;height: 22px;margin-top: 3px;"/>',
+    ));
+    //add ecwid home page
+    $wp_admin_bar->add_menu(array(
+            "id" => "ecwid_home",
+            "title" => "Ecwid Site",
+            "parent" => "ecwid_main",
+            'href' => 'http://www.ecwid.com/'
+        )
+    );
+    //add store page link
+    $wp_admin_bar->add_menu(array(
+            "id" => "ecwid_go_to_page",
+            "title" => "My Ecwid Store",
+            "parent" => "ecwid_main",
+            'href' =>  get_page_link(get_option("ecwid_store_page_id"))
+        )
+    );
+    //add settings page link
+    $wp_admin_bar->add_menu(array(
+            "id" => "ecwid_settings",
+            "title" => "Settings page",
+            "parent" => "ecwid_main",
+            'href' =>  admin_url('options-general.php?page=ecwid_options_page' )
+        )
+    );
+    $wp_admin_bar->add_menu(array(
+            "id" => "ecwid_fb_app",
+            "title" => "→ Sell on Facebook",
+            "parent" => "ecwid_main",
+            'href' =>  'http://apps.facebook.com/ecwid-shop/'
+        )
+    );
+}
 
 function ecwid_ajax_crawling_fragment() {
     $ecwid_page_id = get_option("ecwid_store_page_id");
@@ -136,14 +180,12 @@ EOT;
 
 function ecwid_parse_escaped_fragment($escaped_fragment) {
     $fragment = urldecode($escaped_fragment);
-
     $return = array();
 
     if (preg_match('/^(\/~\/)([a-z]+)\/(.*)$/', $fragment, $matches)) {
         parse_str($matches[3], $return);
         $return['mode'] = $matches[2];
     } 
-
     return $return;
 }
 

@@ -35,8 +35,9 @@ class EcwidCatalog
         
         if (is_array($product)) 
         {
+        
             $return = "<div itemscope itemtype=\"http://schema.org/Product\">";
-            $return .= "<h3 class='ecwid_catalog_product_name' itemprop=\"name\">" . htmlentities($product["name"], ENT_COMPAT, 'UTF-8') . "</h3>";
+            $return .= "<h1 class='ecwid_catalog_product_name' itemprop=\"name\">" . htmlentities($product["name"], ENT_COMPAT, 'UTF-8') . "</h1>";
 
             if (!empty($product["thumbnailUrl"]))
                 $return .= "<div class='ecwid_catalog_product_image'><img itemprop=\"image\" src='" . $product["thumbnailUrl"] . "' alt='" . htmlentities($product["sku"], ENT_COMPAT, 'UTF-8') . " " . htmlentities($product["name"], ENT_COMPAT, 'UTF-8') . "'/></div>";
@@ -48,6 +49,14 @@ class EcwidCatalog
 
             $return .= "</div>";
             $return .= "<div class='ecwid_catalog_product_description' itemprop=\"description\">" . $product["description"] . "</div>";
+
+            if (is_array($product["galleryImages"])) {
+                foreach ($product["galleryImages"] as $galleryimage) {
+                    if (empty($galleryimage["alt"]))  $galleryimage["alt"] = htmlspecialchars($product["name"]);
+                    $return .= "<img src='" . $galleryimage["url"] . "' alt='" . htmlspecialchars($galleryimage["alt"]) ."' title='" . htmlspecialchars($galleryimage["alt"]) ."'><br />";                    
+                }
+            }
+
             $return .= "</div>" . PHP_EOL;
         }
 
@@ -77,7 +86,7 @@ class EcwidCatalog
             {
                 $category_url = $this->build_url($category["url"]);
                 $category_name = $category["name"];
-                $return .= "<div class='ecwid_catalog_category_name'><a href='" . htmlspecialchars($category_url) . "'>" . $category_name . "</a><br /></div>" . PHP_EOL;
+                $return .= "<div class='ecwid_catalog_category_name'><a href='" . htmlspecialchars($category_url) . "&offset=0&sort=nameAsc'>" . $category_name . "</a><br /></div>" . PHP_EOL;
             }
         }
 
@@ -85,7 +94,8 @@ class EcwidCatalog
         {
             foreach ($products as $product) 
             {
-                $product_url = $this->build_url($product["url"]);
+                $product_url = $this->store_base_url . "#!/~/product/category=" . $id . "&id=" . $product["id"];
+                $this->build_url($product["url"]);
                 $product_name = $product["name"];
                 $product_price = $product["price"] . "&nbsp;" . $profile["currency"];
                 $return .= "<div>";
