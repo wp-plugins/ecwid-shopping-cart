@@ -72,7 +72,7 @@ function add_ecwid_admin_bar_node() {
             "id" => "ecwid_fb_app",
             "title" => "→ Sell on Facebook",
             "parent" => "ecwid_main",
-            'href' =>  'http://apps.facebook.com/ecwid-shop/'
+            'href' =>  'http://apps.facebook.com/ecwid-shop/?fb_source=wp'
         )
     );
 }
