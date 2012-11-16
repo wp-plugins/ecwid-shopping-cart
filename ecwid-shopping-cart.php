@@ -27,6 +27,7 @@ if ( is_admin() ){
   add_shortcode('ecwid_searchbox', 'ecwid_searchbox_shortcode');
   add_shortcode('ecwid_categories', 'ecwid_categories_shortcode');
   add_shortcode('ecwid_productbrowser', 'ecwid_productbrowser_shortcode');
+  add_action('init', 'ecwid_backward_compatibility');
   add_filter('wp_title', 'ecwid_seo_title', 0);
   add_action('wp_head', 'ecwid_ajax_crawling_fragment');
   add_action('wp_head', 'ecwid_meta');
@@ -34,6 +35,22 @@ if ( is_admin() ){
 }
 add_action('admin_bar_menu', 'add_ecwid_admin_bar_node', 1000);
 
+function ecwid_backward_compatibility() {
+
+    // Backward compatibility with 1.1.2 and earlier
+    if (isset($_GET['ecwid_product_id']) || isset($_GET['ecwid_category_id'])) {
+        $ecwid_page = get_option("ecwid_store_page_id");
+        $ecwid_page = get_page_link($ecwid_page);
+        $ecwid_page .= '#!/~/';
+
+        if (isset($_GET['ecwid_product_id']))
+            $redirect = $ecwid_page . 'product/id=' . $_GET['ecwid_product_id'];
+        elseif (isset($_GET['ecwid_category_id']))
+            $redirect = $ecwid_page . 'category/id=' . $_GET['ecwid_category_id'];
+
+        wp_redirect($redirect, 301);
+    }
+}
 
 function add_ecwid_admin_bar_node() {
     global $wp_admin_bar;
