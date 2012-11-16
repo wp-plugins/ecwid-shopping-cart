@@ -78,7 +78,7 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 
 == Changelog ==
 = 1.3 =
-[+] Backward compatibility with old Inline SEO Catalog links.
+- [+] Backward compatibility with old Inline SEO Catalog links.
 = 1.2 =
 - [+] A lot of changes in Ecwid shopping cart: http://www.ecwid.com/blog/new-releases/
 - [+] Support of the Google’s “AJAX Crawling” API for native indexing of AJAX applications has been added. This will significantly improve the indexation of Ecwid stores and is a successor of the Inline SEO Catalog feature. More details at https://developers.google.com/webmasters/ajax-crawling/  (This feature requires a paid Ecwid subscription)
