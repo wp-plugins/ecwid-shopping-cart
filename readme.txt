@@ -3,7 +3,7 @@ Contributors: Ecwid Team
 Tags: shopping cart, ecommerce, e-commerce, paypal, google checkout, 2checkout, store, shop, product catalog, inventory
 Requires at least: 2.8
 Tested up to: 3.4
-Stable tag: 1.2
+Stable tag: 1.3
 
 Ecwid is a free full-featured shopping cart that can easily be added to any blog
 and takes less than 5 minutes to set up.
@@ -77,6 +77,8 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 - Knowledge Base: [http://kb.ecwid.com](http://kb.ecwid.com)
 
 == Changelog ==
+= 1.3 =
+[+] Backward compatibility with old Inline SEO Catalog links.
 = 1.2 =
 - [+] A lot of changes in Ecwid shopping cart: http://www.ecwid.com/blog/new-releases/
 - [+] Support of the Google’s “AJAX Crawling” API for native indexing of AJAX applications has been added. This will significantly improve the indexation of Ecwid stores and is a successor of the Inline SEO Catalog feature. More details at https://developers.google.com/webmasters/ajax-crawling/  (This feature requires a paid Ecwid subscription)
