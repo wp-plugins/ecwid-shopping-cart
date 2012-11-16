@@ -80,15 +80,19 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 = 1.2 =
 - [+] A lot of changes in Ecwid shopping cart: http://www.ecwid.com/blog/new-releases/
 - [+] Support of the Google’s “AJAX Crawling” API for native indexing of AJAX applications has been added. This will significantly improve the indexation of Ecwid stores and is a successor of the Inline SEO Catalog feature. More details at https://developers.google.com/webmasters/ajax-crawling/  (This feature requires a paid Ecwid subscription)
-- [+] Auto-generated meta descriptions and titles for product pages.
+- [+] Auto-generated titles for product pages.
 - [+] Support of microformats to get rich snippets in search engine results pages.
 - [+] New Ecwid section has been added to the admin menu.
+
 = 1.1.2 =
 - [!] Issue with the way how widgets are embedded into the page for the free users was fixed.
+
 = 1.1.1 =
 - [!] Issue with the way how inline SEO catalog is embedded into the page was fixed.
+
 = 1.1 =
 - [+] Improved the compatibility with AJAX-based themes for WP and some web search engines out there.
+
 = 1.0 =
 - [!] The "Single Sign-on" feature didn't work properly in some cases. Fixed.
 
