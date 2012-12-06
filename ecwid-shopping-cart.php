@@ -28,7 +28,7 @@ if ( is_admin() ){
   add_shortcode('ecwid_categories', 'ecwid_categories_shortcode');
   add_shortcode('ecwid_productbrowser', 'ecwid_productbrowser_shortcode');
   add_action('init', 'ecwid_backward_compatibility');
-  add_filter('wp_title', 'ecwid_seo_title', 0);
+  add_filter('wp_title', 'ecwid_seo_title', 20);
   add_action('wp_head', 'ecwid_ajax_crawling_fragment');
   add_action('wp_head', 'ecwid_meta');
   $ecwid_seo_title = '';
@@ -49,6 +49,7 @@ function ecwid_backward_compatibility() {
             $redirect = $ecwid_page . 'category/id=' . $_GET['ecwid_category_id'];
 
         wp_redirect($redirect, 301);
+        exit();
     }
 }
 
