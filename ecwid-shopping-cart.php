@@ -262,6 +262,7 @@ function ecwid_productbrowser_shortcode() {
     if (ecwid_is_api_enabled()) {
         if (isset($_GET['_escaped_fragment_'])) {
             $params = ecwid_parse_escaped_fragment($_GET['_escaped_fragment_']);
+            include_once WP_PLUGIN_DIR . '/ecwid-shopping-cart/lib/ecwid_product_api.php';
             include_once WP_PLUGIN_DIR . '/ecwid-shopping-cart/lib/EcwidCatalog.php';
 
             $ecwid_page_id = get_option("ecwid_store_page_id");
