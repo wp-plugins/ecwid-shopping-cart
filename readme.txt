@@ -78,7 +78,7 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 
 == Changelog ==
 = 1.5 = 
-- [!] bug fixes in the SEO functionality
+- [!] fixed a problem where in some rare occasions the SEO catalog would show a PHP error.
 = 1.4 =
 - [!] enhanced the backward compatibility with the older inline SEO links
 - [+] increased the priority of the product-specific titles in order to work side-by-side with various SEO-related plugins.
