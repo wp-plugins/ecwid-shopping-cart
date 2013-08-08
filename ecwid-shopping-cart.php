@@ -116,22 +116,65 @@ function ecwid_meta() {
         
 }
 
+function ecwid_get_product_and_category($category_id, $product_id) {
+    $params = array 
+    (
+        array("alias" => "c", "action" => "category", "params" => array("id" => $category_id)),
+        array("alias" => "p", "action" => "product", "params" => array("id" => $product_id)),           
+    );
+
+    $api = ecwid_new_product_api();
+    $batch_result = $api->get_batch_request($params);
+
+    $category = $batch_result["c"];
+    $product = $batch_result["p"];
+    $return = "";
+
+    if (is_array($product)) {
+        $return .=$product["name"];
+    }
+
+    if(is_array($category)) {
+        $return.=" | ";
+        $return .=$category["name"];
+    }
+    return $return;
+}
+
 function ecwid_seo_title($content) {
-  if (isset($_GET['_escaped_fragment_']) && ecwid_is_api_enabled()) {
+    if (isset($_GET['_escaped_fragment_']) && ecwid_is_api_enabled()) {
     $params = ecwid_parse_escaped_fragment($_GET['_escaped_fragment_']);
     $ecwid_seo_title = '';
 
-	$api = ecwid_new_product_api();
+    $api = ecwid_new_product_api();
 
     if (isset($params['mode']) && !empty($params['mode'])) {
         if ($params['mode'] == 'product') {
             $ecwid_product = $api->get_product($params['id']);
             $ecwid_seo_title = $ecwid_product['name'];
-        } elseif ($params['mode'] == 'category') {
-        // define category's title. no API for that QQ 
+            if(isset($params['category']) && !empty($params['category'])){
+                $ecwid_seo_title= ecwid_get_product_and_category($params['category'], $params['id']);
+            }
+            elseif(empty($params['category'])){
+                $ecwid_product = $api->get_product($params['id']); 
+                $ecwid_seo_title .=$ecwid_product['name'];
+                if(is_array($ecwid_product['categories'])){
+                    foreach ($ecwid_product['categories'] as $ecwid_category){
+                        if($ecwid_category['defaultCategory']==true){
+                        $ecwid_seo_title .=" | ";
+                        $ecwid_seo_title .=  $ecwid_category['name'];
+                        }
+                    }
+                }
         }
     }
 
+        elseif ($params['mode'] == 'category'){
+         $api = ecwid_new_product_api();
+         $ecwid_category = $api->get_category($params['id']);    
+         $ecwid_seo_title =  $ecwid_category['name'];
+        }
+    }
     if (!empty($ecwid_seo_title))
         return $ecwid_seo_title . " | " . $content;
     else
@@ -141,6 +184,8 @@ function ecwid_seo_title($content) {
     return $content;
   }  
 }
+
+
 
 function ecwid_get_scriptjs_code() {
     if (!defined('ECWID_SCRIPTJS')) {

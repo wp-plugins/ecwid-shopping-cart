@@ -104,6 +104,13 @@ class EcwidProductApi {
 		return $product;
 	}
 
+	function get_category($category_id) {
+		$category_id = intval($category_id);
+		$api_url = $this->ECWID_PRODUCT_API_ENDPOINT . "/" . $this->store_id . "/category?id=" . $category_id;
+		$category = $this->process_request($api_url);
+		return $category;
+	}
+        
 	function get_batch_request($params) {
 		if (!is_array($params)) {
 			return false;
@@ -142,7 +149,6 @@ class EcwidProductApi {
 			return $data;
 		}
 	}
-
 	function get_random_products($count) {
 	  $count = intval($count);
 		$api_url = $this->ECWID_PRODUCT_API_ENDPOINT . "/" . $this->store_id . "/random_products?count=" . $count;

@@ -38,20 +38,79 @@ class EcwidCatalog
         
             $return = "<div itemscope itemtype=\"http://schema.org/Product\">";
             $return .= "<h1 class='ecwid_catalog_product_name' itemprop=\"name\">" . htmlentities($product["name"], ENT_COMPAT, 'UTF-8') . "</h1>";
-
-            if (!empty($product["thumbnailUrl"]))
+            $return .= "<p class='ecwid_catalog_product_sku' itemprop=\"sku\">" . htmlentities($product["sku"], ENT_COMPAT, 'UTF-8') . "</p>";
+            
+            if (!empty($product["thumbnailUrl"])) 
+            {
                 $return .= "<div class='ecwid_catalog_product_image'><img itemprop=\"image\" src='" . $product["thumbnailUrl"] . "' alt='" . htmlentities($product["sku"], ENT_COMPAT, 'UTF-8') . " " . htmlentities($product["name"], ENT_COMPAT, 'UTF-8') . "'/></div>";
-
-            $return .= "<div class='ecwid_catalog_product_price' itemprop=\"offers\" itemscope itemtype=\"http://schema.org/Offer\">Price: <span itemprop=\"price\">" . $product["price"] . "</span>&nbsp;<span itemprop=\"priceCurrency\">" . $profile["currency"] . "</span>";
+            }
+            
+            if(is_array($product["categories"]))
+            {
+                foreach ($product["categories"] as $ecwid_category) 
+                {
+                   if($ecwid_category["defaultCategory"]==true)
+                   {
+                        $return .="<div Ñlass='ecwid_catalog_product_category' itemprop=\"category\">".$ecwid_category["name"]."</div>";
+                   }
+                 }
+            }
+            
+            $return .= "<div class='ecwid_catalog_product_price' itemprop=\"offers\" itemscope itemtype=\"http://schema.org/Offer\">Price: <span itemprop=\"price\">" . $product["price"] . "</span>&nbsp;<span itemprop=\"priceCurrency\">" . $profile["currency"] . "</span></div>";
             
             if (!isset($product['quantity']) || (isset($product['quantity']) && $product['quantity'] > 0))
-                $return .= "<link itemprop=\"availability\" href=\"http://schema.org/InStock\" />";
-
-            $return .= "</div>";
+            {
+                $return .= "<div class='ecwid_catalog_quantity' itemprop=\"availability\" itemscope itemtype=\"http://schema.org/InStock\"><span>In Stock</span></div>";
+            }
             $return .= "<div class='ecwid_catalog_product_description' itemprop=\"description\">" . $product["description"] . "</div>";
 
-            if (is_array($product["galleryImages"])) {
-                foreach ($product["galleryImages"] as $galleryimage) {
+            if (is_array($product["options"]))
+            {
+                foreach($product["options"] as $product_options)
+                {
+                   if($product_options["type"]=="TEXTFIELD" || $product_options["type"]=="DATE")
+                   {
+                    $return .= "<div class='ecwid_catalog_product_options' itemprop=\"offers\"><span itemprop=\"condition\">". $product_options["name"]."</span></div>";
+                    $return .='<input type="text" size="40" name='. $product_options["name"].'>';
+                   }                   
+                   if($product_options["type"]=="TEXTAREA")
+                   {
+                     $return .= "<div class='ecwid_catalog_product_options' itemprop=\"offers\"><span itemprop=\"condition\">". $product_options["name"]."</span></div>";
+                     $return .='<textarea name='.$product_options["name"].'></textarea>';
+                   }
+                   if ($product_options["type"]=="SELECT")
+                   {
+                    $return .="<div class='ecwid_catalog_product_options' itemprop=\"offers\"><span itemprop=\"condition\">". $product_options["name"]."</span></div>";
+                     $return .= '<select name='. $product_options["name"].'>';
+                        foreach ($product_options["choices"] as $options_param) 
+                        { 
+                         $return .='<option value='. $options_param['text'].'>'. $options_param['text'].' ('.$options_param['priceModifier'].')</option>';
+                        }
+                    $return .= '</select>';
+                    }
+                    if($product_options["type"]=="RADIO")
+                    {
+                     $return .= "<div class='ecwid_catalog_product_options' itemprop=\"offers\"><span itemprop=\"condition\">". $product_options["name"]."</span></div>";
+                        foreach ($product_options["choices"] as $options_param) 
+                        {
+                         $return .='<input type="radio" name='.$product_options["name"].'value='. $options_param['text'].'>'. $options_param['text'].' ('.$options_param['priceModifier'].')<br>';
+                        }
+                    }
+                    if($product_options["type"]=="CHECKBOX")
+                    {
+                     $return .= "<div class='ecwid_catalog_product_options' itemprop=\"offers\"><span itemprop=\"condition\">". $product_options["name"]."</span></div>";
+                        foreach ($product_options["choices"] as $options_param) 
+                        {
+                         $return .='<input type="checkbox" name='.$product_options["name"].'value='. $options_param['text'].'>'. $options_param['text'].' ('.$options_param['priceModifier'].')<br>';
+                        }
+                    }                  
+                }
+            }                
+                        
+            if (is_array($product["galleryImages"])) 
+            {
+                foreach ($product["galleryImages"] as $galleryimage) 
+                {
                     if (empty($galleryimage["alt"]))  $galleryimage["alt"] = htmlspecialchars($product["name"]);
                     $return .= "<img src='" . $galleryimage["url"] . "' alt='" . htmlspecialchars($galleryimage["alt"]) ."' title='" . htmlspecialchars($galleryimage["alt"]) ."'><br />";                    
                 }
