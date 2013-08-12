@@ -51,7 +51,7 @@ class EcwidCatalog
                 {
                    if($ecwid_category["defaultCategory"]==true)
                    {
-                        $return .="<div Ñlass='ecwid_catalog_product_category' itemprop=\"category\">".$ecwid_category["name"]."</div>";
+                        $return .="<div class='ecwid_catalog_product_category' itemprop=\"category\">".$ecwid_category["name"]."</div>";
                    }
                  }
             }
