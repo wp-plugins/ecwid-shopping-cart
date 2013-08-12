@@ -3,7 +3,7 @@ Contributors: Ecwid Team
 Tags: shopping cart, ecommerce, e-commerce, paypal, google checkout, 2checkout, store, shop, product catalog, inventory
 Requires at least: 2.8
 Tested up to: 3.5
-Stable tag: 1.5
+Stable tag: 1.7
 
 Ecwid is a free full-featured shopping cart that can easily be added to any blog
 and takes less than 5 minutes to set up.
@@ -36,8 +36,9 @@ Links
 
 1. Go to your WP admin panel → Plugins → Add New
 2. Under Search, type in 'Ecwid', click Search
-3. In the search results find the 'Ecwid shopping cart' plugin and click 'Install now' to install it
-4. Click Proceed to continue with the installation. The resulting installation screen will list the installation as successful or note any problems during the install
+3. In the search results find the 'Ecwid Shopping Cart' plugin and click 'Install now' to install it
+4. When plugin is installed click 'Activate Plugin' link
+5. Log in into Ecwid control panel at https://my.ecwid.com and copy your numeric Store ID. Go to 'Settings → Ecwid shopping cart' page in WP admin panel and paste Store ID in the corresponding field.
 
 **IMPORTANT**: when the plugin is installed, you will need to activate it on the Plugins page (click 'Activate' link) and configure it on the 'Settings → Ecwid shopping cart' page (at least, you will need to set your store ID there).
 
@@ -77,6 +78,8 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 - Knowledge Base: [http://kb.ecwid.com](http://kb.ecwid.com)
 
 == Changelog ==
+= 1.7 =
+- [+] various additions to the indexable representation of Ecwid pages (product category in the title and on the page, product options, product SKU). Thanks to Uliya B.
 = 1.5 = 
 - [!] fixed a problem where in some rare occasions the SEO catalog would show a PHP error.
 = 1.4 =
