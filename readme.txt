@@ -83,7 +83,7 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 - [+] Ability to display separate categories on separate pages with custom shortcodes. Now, the plugin allows setting different default categories for different store pages. So if you have multiple store pages and want to display specific categories on them, you can set up a default category for each of them in the [ecwid\_productbrowser] shortcode like this: [ecwid\_productbrowser default\_category\_id="12345"] . On the other hand, if you have one store page, you can set the default category on the plugin settings page as usual.
 - [+] A few more SEO improvements:
    - Product browser's default category ID setting is now taken into consideration by SEO part of the plugin. If you have multiple store pages displaying specific categories of your shop, search engines will index those pages starting from the proper category (not from the store's root)
-   - <meta fragment="!"> tag is now displayed on every page where [ecwid\_productbrowser] tag is added so search engines will better index each store page
+   - &lt;meta fragment="!"&gt; tag is now displayed on every page where [ecwid\_productbrowser] tag is added so search engines will better index each store page
 - [+] We also released a lot of new Ecwid features. You can read about them there: http://www.ecwid.com/blog/new-releases/
 
 = 1.7 =
