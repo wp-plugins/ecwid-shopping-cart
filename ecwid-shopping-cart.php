@@ -4,7 +4,7 @@ Plugin Name: Ecwid Shopping Cart
 Plugin URI: http://www.ecwid.com?source=wporg
 Description: Ecwid is a free full-featured shopping cart. It can be easily integrated with any Wordpress blog and takes less than 5 minutes to set up.
 Author: Ecwid Team
-Version: 1.8 
+Version: 1.8.1
 Author URI: http://www.ecwid.com?source=wporg
 */
 
@@ -97,10 +97,10 @@ function ecwid_override_option($name, $new_value = null)
     }
 }
 
-function ecwid_seo_compatibility_init()
+function ecwid_seo_compatibility_init($title)
 {
     if (!array_key_exists('_escaped_fragment_', $_GET) || !ecwid_page_has_productbrowser()) {
-        return;
+        return $title;
     }
 
     // Default wordpress canonical
@@ -120,6 +120,8 @@ function ecwid_seo_compatibility_init()
     $aioseop_options['aiosp_can'] = false;
     // Title for All in One SEO Pack
     remove_filter('wp_title', array($aiosp, 'wp_title'), 20);
+
+    return $title;
 }
 
 function ecwid_seo_compatibility_restore()
@@ -246,7 +248,7 @@ function ecwid_seo_title($content) {
                 $ecwid_seo_title= ecwid_get_product_and_category($params['category'], $params['id']);
             }
             elseif(empty($params['category'])){
-                $ecwid_product = $api->get_product($params['id']); 
+                $ecwid_product = $api->get_product($params['id']);
                 $ecwid_seo_title .=$ecwid_product['name'];
                 if(is_array($ecwid_product['categories'])){
                     foreach ($ecwid_product['categories'] as $ecwid_category){
@@ -261,7 +263,7 @@ function ecwid_seo_title($content) {
 
         elseif ($params['mode'] == 'category'){
          $api = ecwid_new_product_api();
-         $ecwid_category = $api->get_category($params['id']);    
+         $ecwid_category = $api->get_category($params['id']);
          $ecwid_seo_title =  $ecwid_category['name'];
         }
     }
@@ -272,7 +274,7 @@ function ecwid_seo_title($content) {
 
   } else {
     return $content;
-  }  
+  }
 }
 
 function ecwid_wrap_shortcode_content($content)
