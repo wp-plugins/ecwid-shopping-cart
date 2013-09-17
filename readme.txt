@@ -1,9 +1,9 @@
 === Ecwid Shopping Cart ===
 Contributors: Ecwid Team
-Tags: shopping cart, ecommerce, e-commerce, paypal, google checkout, 2checkout, store, shop, product catalog, inventory
+Tags: ecwid, shopping cart, ecommerce, e-commerce, paypal, google checkout, 2checkout, store, shop, product catalog, inventory
 Requires at least: 2.8
 Tested up to: 3.6
-Stable tag: 1.7
+Stable tag: 1.8.1
 
 Ecwid is a free full-featured shopping cart that can easily be added to any blog
 and takes less than 5 minutes to set up.
@@ -78,6 +78,17 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 - Knowledge Base: [http://kb.ecwid.com](http://kb.ecwid.com)
 
 == Changelog ==
+= 1.8.1 =
+- [!] Fixed meta title tag display issue on the main store page appeared with the version 1.8 : in some cases, the store page title tag was stripped. Now it should work OK.
+
+= 1.8 =
+- [+] Improved compatibility with popular SEO plugins (Yoast WordPress SEO, All in one SEO Pack and Platinum SEO pack) : now Ecwid prevents them from generating wrong title and canonical tags on the product pages.
+- [+] Ability to display separate categories on separate pages with custom shortcodes. Now, the plugin allows setting different default categories for different store pages. So if you have multiple store pages and want to display specific categories on them, you can set up a default category for each of them in the [ecwid\_productbrowser] shortcode like this: [ecwid\_productbrowser default\_category\_id="12345"] . On the other hand, if you have one store page, you can set the default category on the plugin settings page as usual.
+- [+] A few more SEO improvements:
+   - Product browser's default category ID setting is now taken into consideration by SEO part of the plugin. If you have multiple store pages displaying specific categories of your shop, search engines will index those pages starting from the proper category (not from the store's root)
+   - &lt;meta fragment="!"&gt; tag is now displayed on every page where [ecwid\_productbrowser] tag is added so search engines will better index each store page
+- [+] We also released a lot of new Ecwid features. You can read about them there: http://www.ecwid.com/blog/new-releases/
+
 = 1.7 =
 - [+] various additions to the indexable representation of Ecwid pages (product category in the title and on the page, product options, product SKU). Thanks to Uliya B.
 = 1.5 = 
