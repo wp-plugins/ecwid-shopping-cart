@@ -126,8 +126,8 @@ class EcwidCatalog
     {
         $params = array
         (
-            array("alias" => "c", "action" => "categories", "params" => array("parent" => $id)),
-            array("alias" => "p", "action" => "products", "params" => array("category" => $id)),
+			array("alias" => "c", "action" => "categories", "params" => array("parent" => $id)),
+			array("alias" => "p", "action" => "products", "params" => array("category" => $id)),
             array("alias" => "pf", "action" => "profile")
         );
 

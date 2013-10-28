@@ -4,20 +4,32 @@ Plugin Name: Ecwid Shopping Cart
 Plugin URI: http://www.ecwid.com?source=wporg
 Description: Ecwid is a free full-featured shopping cart. It can be easily integrated with any Wordpress blog and takes less than 5 minutes to set up.
 Author: Ecwid Team
-Version: 1.8.1
+Version: 2.0
 Author URI: http://www.ecwid.com?source=wporg
 */
 
 register_activation_hook( __FILE__, 'ecwid_store_activate' );
 register_deactivation_hook( __FILE__, 'ecwid_store_deactivate' );
 
-define("APP_ECWID_COM","app.ecwid.com");
+define("APP_ECWID_COM", "app.ecwid.com");
+define("ECWID_DEMO_STORE_ID", 1003);
+
+if ( ! defined( 'ECWID_PLUGIN_DIR' ) ) {
+	define( 'ECWID_PLUGIN_DIR', plugin_dir_path( realpath(__FILE__) ) );
+}
+
+if ( ! defined( 'ECWID_PLUGIN_URL' ) ) {
+	define( 'ECWID_PLUGIN_URL', plugin_dir_url( realpath(__FILE__) ) );
+}
 
 if ( is_admin() ){ 
   add_action('admin_init', 'ecwid_settings_api_init');
   add_action('admin_notices', 'ecwid_show_admin_message');
   add_action('admin_menu', 'ecwid_options_add_page');
   add_action('wp_dashboard_setup', 'ecwid_add_dashboard_widgets' );
+  add_action('admin_enqueue_scripts', 'ecwid_register_admin_styles');
+  add_action('admin_enqueue_scripts', 'ecwid_register_settings_styles');
+
 } else {
   add_shortcode('ecwid_script', 'ecwid_script_shortcode');
   add_shortcode('ecwid_minicart', 'ecwid_minicart_shortcode');
@@ -30,6 +42,7 @@ if ( is_admin() ){
   add_action('wp_head', 'ecwid_meta');
   add_action('wp_title', 'ecwid_seo_compatibility_init', 0);
   add_action('wp_head', 'ecwid_seo_compatibility_restore', 1000);
+  add_action('wp_head', 'ecwid_meta_description', 0);
   $ecwid_seo_title = '';
 }
 add_action('admin_bar_menu', 'add_ecwid_admin_bar_node', 1000);
@@ -42,27 +55,36 @@ if (version_compare($version, '3.6') < 0) {
      * http://core.trac.wordpress.org/browser/tags/3.6/wp-includes/shortcodes.php
      */
 
-    function shortcode_exists( $tag ) {
-        global $shortcode_tags;
-	        return array_key_exists( $tag, $shortcode_tags );
+	if (!function_exists('shortcode_exists')) {
+		function shortcode_exists( $tag ) {
+			global $shortcode_tags;
+				return array_key_exists( $tag, $shortcode_tags );
+		}
 	}
 
-    function has_shortcode( $content, $tag ) {
-        if ( shortcode_exists( $tag ) ) {
-            preg_match_all( '/' . get_shortcode_regex() . '/s', $content, $matches, PREG_SET_ORDER );
-            if ( empty( $matches ) )
-                return false;
+	if (!function_exists('has_shortcode')) {
+		function has_shortcode( $content, $tag ) {
+			if ( shortcode_exists( $tag ) ) {
+				preg_match_all( '/' . get_shortcode_regex() . '/s', $content, $matches, PREG_SET_ORDER );
+				if ( empty( $matches ) )
+					return false;
 
-            foreach ( $matches as $shortcode ) {
-                if ( $tag === $shortcode[2] ) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
+				foreach ( $matches as $shortcode ) {
+					if ( $tag === $shortcode[2] ) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+	}
 }
 
+function ecwid_load_textdomain() {
+	load_plugin_textdomain( 'ecwid-shopping-cart', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+}
+
+add_filter( 'plugins_loaded', 'ecwid_load_textdomain' );
 
 function ecwid_backward_compatibility() {
 
@@ -109,6 +131,7 @@ function ecwid_seo_compatibility_init($title)
     // Canonical for Yoast Wordpress SEO
     global $wpseo_front;
     remove_action( 'wpseo_head', array( $wpseo_front, 'canonical' ), 20);
+	remove_action( 'wpseo_head', array( $wpseo_front, 'metadesc' ), 10 );
 
     // Canonical for Platinum SEO Pack
     ecwid_override_option('psp_canonical', false);
@@ -119,9 +142,11 @@ function ecwid_seo_compatibility_init($title)
     // Canonical for All in One SEO Pack
     $aioseop_options['aiosp_can'] = false;
     // Title for All in One SEO Pack
-    remove_filter('wp_title', array($aiosp, 'wp_title'), 20);
+	add_filter('aioseop_description', __return_null);
+	add_filter('aioseop_title', __return_null);
 
-    return $title;
+	return $title;
+
 }
 
 function ecwid_seo_compatibility_restore()
@@ -138,38 +163,49 @@ function add_ecwid_admin_bar_node() {
     global $wp_admin_bar;
      if ( !is_super_admin() || !is_admin_bar_showing() )
         return;
-    //add parent menu node
+
     $wp_admin_bar->add_menu( array(
         'id' => 'ecwid_main',
-        'title' => '<img src="'.plugins_url().'/ecwid-shopping-cart/ecwid_menu_icon.png" style="width: 22px;height: 22px;margin-top: 3px;"/>',
+        'title' => '<div class="ecwid-top-menu-item"></div>',
     ));
-    //add ecwid home page
+	$wp_admin_bar->add_menu(array(
+			"id" => "ecwid_help",
+			"title" => __("Get help", 'ecwid-shopping-cart'),
+			"parent" => "ecwid_main",
+			'href' =>  'http://help.ecwid.com'
+		)
+	);
     $wp_admin_bar->add_menu(array(
             "id" => "ecwid_home",
-            "title" => "Ecwid Site",
+            "title" => __("Go to Ecwid site", 'ecwid-shopping-cart'),
             "parent" => "ecwid_main",
             'href' => 'http://www.ecwid.com?source=wporg'
         )
     );
-    //add store page link
     $wp_admin_bar->add_menu(array(
             "id" => "ecwid_go_to_page",
-            "title" => "My Ecwid Store",
+            "title" => __("Visit storefront", 'ecwid-shopping-cart'),
             "parent" => "ecwid_main",
             'href' =>  get_page_link(get_option("ecwid_store_page_id"))
         )
     );
-    //add settings page link
     $wp_admin_bar->add_menu(array(
-            "id" => "ecwid_settings",
-            "title" => "Settings page",
+            "id" => "ecwid_control_panel",
+            "title" => __("Manage my store", 'ecwid-shopping-cart'),
             "parent" => "ecwid_main",
-            'href' =>  admin_url('options-general.php?page=ecwid_options_page' )
+            'href' =>  'https://my.ecwid.com/cp/?source=wporg#t1=&t2=Dashboard'
         )
     );
-    $wp_admin_bar->add_menu(array(
+	$wp_admin_bar->add_menu(array(
+			"id" => "ecwid_settings",
+			"title" => __("Manage plugin settings", 'ecwid-shopping-cart'),
+			"parent" => "ecwid_main",
+			'href' =>  admin_url('admin.php?page=ecwid')
+		)
+	);
+	$wp_admin_bar->add_menu(array(
             "id" => "ecwid_fb_app",
-            "title" => "→ Sell on Facebook",
+            "title" => __("→ Sell on Facebook", 'ecwid-shopping-cart'),
             "parent" => "ecwid_main",
             'href' =>  'http://apps.facebook.com/ecwid-shop/?fb_source=wp'
         )
@@ -206,6 +242,38 @@ function ecwid_meta() {
         echo '<link rel="prefetch" href="' . $page_url . '" />' . PHP_EOL;
         echo '<link rel="prerender" href="' . $page_url . '" />' . PHP_EOL;
     }
+}
+
+function ecwid_meta_description() {
+
+    $allowed = ecwid_is_api_enabled() && isset($_GET['_escaped_fragment_']);
+    if (!$allowed) return;
+
+    $params = ecwid_parse_escaped_fragment($_GET['_escaped_fragment_']);
+    if (!$params) return;
+
+    if (!in_array($params['mode'], array('category', 'product')) || !isset($params['id'])) return;
+
+    $api = ecwid_new_product_api();
+    if ($params['mode'] == 'product') {
+        $product = $api->get_product($params['id']);
+        $description = $product['description'];
+    } elseif ($params['mode'] == 'category') {
+        $category = $api->get_category($params['id']);
+        $description = $category['description'];
+    } else return;
+
+    $description = strip_tags($description);
+    $description = html_entity_decode($description, ENT_NOQUOTES, 'UTF-8');
+
+	$description = preg_replace("![\\s]+!", " ", $description);
+	$description = trim($description, " \t\xA0\n\r"); // Space, tab, non-breaking space, newline, carriage return
+	$description = mb_substr($description, 0, 160);
+	$description = htmlspecialchars($description, ENT_COMPAT | ENT_HTML401, 'UTF-8');
+
+    echo <<<HTML
+<meta name="description" content="$description" />
+HTML;
 }
 
 function ecwid_get_product_and_category($category_id, $product_id) {
@@ -279,19 +347,18 @@ function ecwid_seo_title($content) {
 
 function ecwid_wrap_shortcode_content($content)
 {
-    return "<!-- Ecwid shopping cart plugin v 1.8 --><div>$content</div><!-- END Ecwid Shopping Cart v 1.8 -->";
+    return "<!-- Ecwid shopping cart plugin v 2.0 --><div>$content</div><!-- END Ecwid Shopping Cart v 2.0 -->";
 }
 
 function ecwid_get_scriptjs_code() {
     if (!defined('ECWID_SCRIPTJS')) {
-      $ecwid_protocol = get_ecwid_protocol();
       $store_id = get_ecwid_store_id();
-      $s =  "<script type=\"text/javascript\" src=\"$ecwid_protocol://" . APP_ECWID_COM . "/script.js?$store_id\"></script>";
+      $s =  '<script type="text/javascript" data-cfasync="false" src="//' . APP_ECWID_COM . '/script.js?' . $store_id . '"></script>';
       define('ECWID_SCRIPTJS','Yep');
       $s = $s . ecwid_sso(); 
       return $s;
     } else {
-      return; 
+      return '';
     }
 }
 
@@ -300,6 +367,7 @@ function ecwid_script_shortcode() {
 }
 
 function ecwid_minicart_shortcode() {
+
     $ecwid_enable_minicart = get_option('ecwid_enable_minicart');
     $ecwid_show_categories = get_option('ecwid_show_categories');
     if (!empty($ecwid_enable_minicart) && !empty($ecwid_show_categories)) {
@@ -419,6 +487,7 @@ function ecwid_productbrowser_shortcode($shortcode_params) {
                     $plain_content = $catalog->get_category($params['id']);
                     $ecwid_default_category_str = ',"defaultCategoryId=' . $params['id'] . '"';
                 }
+
             } else {
                 $plain_content = $catalog->get_category(intval($ecwid_default_category_id));
             }
@@ -442,7 +511,7 @@ function ecwid_store_activate() {
 <!-- Ecwid code. Please do not remove this line  otherwise your Ecwid shopping cart will not work properly. --> [ecwid_script] [ecwid_minicart] [ecwid_searchbox] [ecwid_categories] [ecwid_productbrowser] <!-- Ecwid code end -->
 EOT;
   	add_option("ecwid_store_page_id", '', '', 'yes');	
-  	add_option("ecwid_store_id", '1003', '', 'yes');
+  	add_option("ecwid_store_id", ECWID_DEMO_STORE_ID, '', 'yes');
     
     add_option("ecwid_enable_minicart", 'Y', '', 'yes');
     add_option("ecwid_show_categories", 'Y', '', 'yes');
@@ -459,8 +528,6 @@ EOT;
     add_option("ecwid_pb_defaultview", 'grid', '', 'yes');
     add_option("ecwid_pb_searchview", 'list', '', 'yes');
 
-    add_option("ecwid_enable_ssl", '', '', 'yes');  
-    
     add_option("ecwid_mobile_catalog_link", '', '', 'yes');  
     add_option("ecwid_default_category_id", '', '', 'yes');  
      
@@ -472,7 +539,7 @@ EOT;
     $id = get_option("ecwid_store_page_id");	
 	$_tmp_page = null;
 	if (!empty($id) and ($id > 0)) { 
-		$_tmp_page = get_page($id);
+		$_tmp_page = get_post($id);
 	}
 	if ($_tmp_page !== null) {
 		$my_post = array();
@@ -481,7 +548,7 @@ EOT;
 		wp_update_post( $my_post );
 
 	} else {
-		$my_post['post_title'] = 'Store';
+		$my_post['post_title'] = __('Store', 'ecwid-shopping-cart');
 		$my_post['post_content'] = $content;
 		$my_post['post_status'] = 'publish';
 		$my_post['post_author'] = 1;
@@ -493,14 +560,19 @@ EOT;
 }
 function ecwid_show_admin_message() {
 
-  if (get_ecwid_store_id() != 1003) {
-    return;
-  }	else {
+	if (get_ecwid_store_id() != ECWID_DEMO_STORE_ID || $_GET['page'] == 'ecwid') {
+		return;
+	} else {
 		$ecwid_page_id = get_option("ecwid_store_page_id");
 		$page_url = get_page_link($ecwid_page_id);
-		echo "<div id='' class='updated fade'><p><strong>Ecwid shopping cart is almost ready</strong>.  Please visit <a href=\"$page_url\">the created  page</a> to see your store with demo products. In order to finish the installation, please go to the <a href=\"options-general.php?page=ecwid_options_page\"><strong>Ecwid settings</strong></a> and configure the plugin.</p></div>";
-		}
+		echo sprintf(
+			'<div class="updated fade"><p>'
+			. __('<strong>Ecwid shopping cart is almost ready</strong>. Please visit <a target="_blank" href="%s">the created page</a> to see your store with demo products. In order to finish the installation, please go to the <a href="admin.php?page=ecwid"><strong>Ecwid settings</strong></a> and configure the plugin.', 'ecwid-shopping-cart')
+			. '</p></div>',
+			$page_url
+		);
 	}
+}
 
 function ecwid_store_deactivate() {
 	$ecwid_page_id = get_option("ecwid_store_page_id");
@@ -520,291 +592,181 @@ function ecwid_store_deactivate() {
 }
 
 function ecwid_abs_intval($value) {
-    return abs(intval($value));
+	if (!is_null($value))
+    	return abs(intval($value));
+	else
+		return null;
 }
-
-function ecwid_settings_api_init() {
-    register_setting('ecwid_options_page', 'ecwid_store_id','ecwid_abs_intval' );
-    register_setting('ecwid_options_page', 'ecwid_enable_minicart');
-
-    register_setting('ecwid_options_page', 'ecwid_show_categories');
-    register_setting('ecwid_options_page', 'ecwid_show_search_box');
-
-    register_setting('ecwid_options_page', 'ecwid_pb_categoriesperrow', 'ecwid_abs_intval');
-    register_setting('ecwid_options_page', 'ecwid_pb_productspercolumn_grid', 'ecwid_abs_intval');
-    register_setting('ecwid_options_page', 'ecwid_pb_productsperrow_grid', 'ecwid_abs_intval');
-    register_setting('ecwid_options_page', 'ecwid_pb_productsperpage_list', 'ecwid_abs_intval');
-    register_setting('ecwid_options_page', 'ecwid_pb_productsperpage_table', 'ecwid_abs_intval');
-    register_setting('ecwid_options_page', 'ecwid_pb_defaultview');
-    register_setting('ecwid_options_page', 'ecwid_pb_searchview');
-    register_setting('ecwid_options_page', 'ecwid_enable_ssl');
-    
-    register_setting('ecwid_options_page', 'ecwid_mobile_catalog_link');
-    register_setting('ecwid_options_page', 'ecwid_default_category_id');
-   
-    register_setting('ecwid_options_page', 'ecwid_sso_secret_key');
-
-    if (isset($_POST['ecwid_store_id'])) {
-        update_option('ecwid_is_api_enabled', 'off');
-        update_option('ecwid_api_check_time', 0);
-    }
-} 
 
 function ecwid_options_add_page() {
-	add_options_page('Ecwid shopping cart settings', 'Ecwid shopping cart', 'manage_options', 'ecwid_options_page', 'ecwid_options_do_page');
+
+
+	add_menu_page(
+		__('Ecwid shopping cart settings', 'ecwid-shopping-cart'),
+		__('Ecwid Store', 'ecwid-shopping-cart'),
+		'manage_options',
+		'ecwid',
+		'ecwid_general_settings_do_page'
+	);
+
+	add_submenu_page(
+		'ecwid',
+		__('General settings', 'ecwid-shopping-cart'),
+		__('General', 'ecwid-shopping-cart'),
+		'manage_options',
+		'ecwid',
+		'ecwid_general_settings_do_page'
+	);
+
+	add_submenu_page(
+		'ecwid',
+		__('Appearance settings', 'ecwid-shopping-cart'),
+		__('Appearance', 'ecwid-shopping-cart'),
+		'manage_options',
+		'ecwid-appearance',
+		'ecwid_appearance_settings_do_page'
+	);
+
+	add_submenu_page(
+		'ecwid',
+		__('Advanced settings', 'ecwid-shopping-cart'),
+		__('Advanced', 'ecwid-shopping-cart'),
+		'manage_options',
+		'ecwid-advanced',
+		'ecwid_advanced_settings_do_page'
+	);
+	//add_options_page('Ecwid shopping cart settings', 'Ecwid shopping cart', 'manage_options', 'ecwid_options_page', 'ecwid_options_do_page');
 }
 
-function ecwid_options_do_page() {
-  	$store_id = get_ecwid_store_id(); 
-    $ecwid_enable_minicart = get_option('ecwid_enable_minicart');
-    $ecwid_show_categories = get_option('ecwid_show_categories');
-    $ecwid_show_search_box = get_option('ecwid_show_search_box');
+function ecwid_register_admin_styles() {
+	wp_register_style('ecwid-admin-css', plugins_url('ecwid-shopping-cart/css/admin.css'), array(), '', 'all');
+	wp_enqueue_style('ecwid-admin-css');
+}
 
-    $ecwid_pb_categoriesperrow = get_option('ecwid_pb_categoriesperrow');
-    $ecwid_pb_productspercolumn_grid = get_option('ecwid_pb_productspercolumn_grid');
-    $ecwid_pb_productsperrow_grid = get_option('ecwid_pb_productsperrow_grid');
-    $ecwid_pb_productsperpage_list = get_option('ecwid_pb_productsperpage_list');
-    $ecwid_pb_productsperpage_table = get_option('ecwid_pb_productsperpage_table');
-    $ecwid_pb_defaultview = get_option('ecwid_pb_defaultview');
-    $ecwid_pb_searchview = get_option('ecwid_pb_searchview');
-    
-    $ecwid_mobile_catalog_link = get_option('ecwid_mobile_catalog_link');
-    $ecwid_default_category_id = get_option('ecwid_default_category_id');
-    $ecwid_enable_ssl = get_option('ecwid_enable_ssl');
-    $ecwid_page_id = get_option("ecwid_store_page_id");
-  
-    $ecwid_sso_secret_key = get_option("ecwid_sso_secret_key");
-  
-    $ecwid_noscript_seo_catalog_disabled = false;
-    $ecwid_noscript_seo_catalog_message = '<a href="http://kb.ecwid.com/Inline-SEO-Catalog" target="_blank">How it works</a>';
-    $ecwid_settings_message = false;
-   
-    $_tmp_page = null;
-    $disabled = false;
-    if (!empty($ecwid_page_id) and ($ecwid_page_id > 0)) {
-        $_tmp_page = get_page($ecwid_page_id);
-        $content = $_tmp_page->post_content;
-        if ( (strpos($content, "[ecwid_productbrowser]") === false) && (strpos($content, "xProductBrowser") !== false) )
-               $disabled = true;
-    }
-
-    if ($disabled)
-        $disabled_str = 'disabled = "disabled"';
-    else
-        $disabled_str = "";
+function ecwid_register_settings_styles() {
+	wp_register_style('ecwid-settings-pure-css', plugins_url('ecwid-shopping-cart/css/pure-min.css'), array(), '', 'all');
+	wp_enqueue_style('ecwid-settings-pure-css');
+	wp_register_style('ecwid-settings-css', plugins_url('ecwid-shopping-cart/css/settings.css'), array(), '', 'all');
+	wp_enqueue_style('ecwid-settings-css');
+}
 
 
-    ?>
-    <div class="wrap">
-    		<?php if ($ecwid_settings_message)
-    		echo "<div id='' class='updated fade'><p><strong>Error.</strong>&nbsp;$ecwid_settings_message</p></div>";
-    		?>
-        <h2>Ecwid settings</h2>
-        <form method="post" action="options.php">
-            <?php settings_fields('ecwid_options_page'); ?>
-            <table class="form-table">
-            <tr><th colspan="2" style="padding:0px;margin:0px;"><h3 style="padding:0px;margin:0px;">General</h3></th></tr>
-                            <tr><th scope="row"><a href="http://kb.ecwid.com/Instruction-on-how-to-get-your-free-Store-ID-(for-WordPress)" target="_blank">Store ID</a></th>
-                    <td><input type="text" name="ecwid_store_id" value="<?php if ($store_id != 1003) echo $store_id; ?>" />
-                    <?php if ($store_id == 1003) {
-                    echo '&nbsp;&nbsp;&nbsp;&nbsp;<img src="//www.ecwid.com/wp-content/uploads/ecwid_wp_attention.gif" alt="">&nbsp;The Store ID isn\'t set up. Please enter your Store ID to assign your site with your Ecwid store and show your products. <a href="http://kb.ecwid.com/Instruction-on-how-to-get-your-free-Store-ID-(for-WordPress)" target="_blank">How to get this free ID</a>.';
-                    }
-                    ?>
-                    </td>
-		    </tr>
-		        <tr><th scope="row">
-    <label for="ecwid_show_categories">Show horizontal categories?</label> </th>
-    <td><input type="checkbox" id="ecwid_show_categories" name="ecwid_show_categories" <?php if (!empty($ecwid_show_categories)) echo "checked=\"checked\""; echo $disabled_str; ?> />
-</td>
-            </tr>
-    <tr><th scope="row">
-    <label for="ecwid_show_search_box">Show search box?</label> </th>
-        <td><input type="checkbox" id="ecwid_show_search_box" name="ecwid_show_search_box" <?php if (!empty($ecwid_show_search_box)) echo "checked=\"checked\"";?> <?php echo $disabled_str;?> />
-</td>
-            </tr>
-         
-    <tr><th scope="row">
-<label for="ecwid_enable_minicart">Enable minicart attached to horizontal categories?</label></th>
-    <td><input type="checkbox" name="ecwid_enable_minicart" id="ecwid_enable_minicart" <?php if (!empty($ecwid_enable_minicart) && !empty($ecwid_show_categories)) echo "checked=\"checked\"";?> 
-<?php if (empty($ecwid_show_categories)) { 
-     echo 'disabled = "disabled"';
-   }
-   else { 
-     echo $disabled_str;
-   } ?> />
-&nbsp;&nbsp;&nbsp;&nbsp;<img src="//www.ecwid.com/wp-content/uploads/ecwid_wp_attention.gif" alt="">&nbsp;If you added minicart to your blog's sidebar, please disable this option.
+function ecwid_settings_api_init() {
+	switch ($_POST['settings_section']) {
+		case 'appearance':
+			register_setting('ecwid_options_page', 'ecwid_enable_minicart');
 
-</td>
-            </tr>
+			register_setting('ecwid_options_page', 'ecwid_show_categories');
+			register_setting('ecwid_options_page', 'ecwid_show_search_box');
 
-            <tr><th colspan="2" style="padding:0px;margin:0px;"><h3 style="padding:0px;margin:0px;">Appearance</h3></th></tr>
+			register_setting('ecwid_options_page', 'ecwid_pb_categoriesperrow', 'ecwid_abs_intval');
+			register_setting('ecwid_options_page', 'ecwid_pb_productspercolumn_grid', 'ecwid_abs_intval');
+			register_setting('ecwid_options_page', 'ecwid_pb_productsperrow_grid', 'ecwid_abs_intval');
+			register_setting('ecwid_options_page', 'ecwid_pb_productsperpage_list', 'ecwid_abs_intval');
+			register_setting('ecwid_options_page', 'ecwid_pb_productsperpage_table', 'ecwid_abs_intval');
+			register_setting('ecwid_options_page', 'ecwid_pb_defaultview');
+			register_setting('ecwid_options_page', 'ecwid_pb_searchview');
+			break;
 
-                            <tr><th scope="row"><label for="ecwid_pb_categoriesperrow">Categories per row</label></th>
-                            <td><input type="text" id="ecwid_pb_categoriesperrow" name="ecwid_pb_categoriesperrow" value="<?php  echo $ecwid_pb_categoriesperrow; ?>" <?php echo $disabled_str;?> /></td>
-            </tr>
+		case 'general':
+			register_setting('ecwid_options_page', 'ecwid_store_id','ecwid_abs_intval' );
+			break;
 
-                            <tr><th scope="row"><label for="ecwid_pb_productspercolumn_grid">Products per column in grid mode</th>
-                            <td><input type="text" id="ecwid_pb_productspercolumn_grid" name="ecwid_pb_productspercolumn_grid" value="<?php  echo $ecwid_pb_productspercolumn_grid; ?>" <?php echo $disabled_str;?> /></td>
-            </tr>                            
-            
-            <tr><th scope="row"><label for="ecwid_pb_productsperrow_grid">Products per row in grid mode</label></th>
-                            <td><input type="text" id="ecwid_pb_productsperrow_grid" name="ecwid_pb_productsperrow_grid" value="<?php  echo $ecwid_pb_productsperrow_grid; ?>" <?php echo $disabled_str;?> /></td>
-            </tr>                        
+		case 'advanced':
+			register_setting('ecwid_options_page', 'ecwid_default_category_id');
+			register_setting('ecwid_options_page', 'ecwid_sso_secret_key');
+			break;
 
-    <tr><th scope="row"><label for="ecwid_pb_productsperpage_list">Products per page in list mode</label></th>
-                            <td><input type="text" id="ecwid_pb_productsperpage_list" name="ecwid_pb_productsperpage_list" value="<?php  echo $ecwid_pb_productsperpage_list; ?>" <?php echo $disabled_str;?> /></td>
-            </tr>
+	}
+	if (isset($_POST['ecwid_store_id'])) {
+		update_option('ecwid_is_api_enabled', 'off');
+		update_option('ecwid_api_check_time', 0);
+	}
+}
 
-                            <tr><th scope="row"><label for="ecwid_pb_productsperpage_table">Products per page in table mode</label></th>
-                            <td><input type="text" id="ecwid_pb_productsperpage_table" name="ecwid_pb_productsperpage_table" value="<?php  echo $ecwid_pb_productsperpage_table; ?>" <?php echo $disabled_str;?> /></td>
-            </tr>
+function ecwid_general_settings_do_page() {
 
+	if (get_ecwid_store_id() == ECWID_DEMO_STORE_ID) {
+		require_once plugin_dir_path(__FILE__) . '/templates/general-settings-initial.php';
+	} else {
+		require_once plugin_dir_path(__FILE__) . '/templates/general-settings.php';
+	}
+}
 
-                            <tr><th scope="row"><label for="ecwid_pb_defaultview">Default view mode on product pages</label></th>
-                            <td>
-				<select id="ecwid_pb_defaultview" name="ecwid_pb_defaultview" <?php echo $disabled_str;?> >
-					<option value="grid" <?php if($ecwid_pb_defaultview == 'grid') echo 'selected="selected"' ?> >Grid mode</option>
-					<option value="list" <?php if($ecwid_pb_defaultview == 'list') echo 'selected="selected"' ?> >List mode</option>
-					<option value="table" <?php if($ecwid_pb_defaultview == 'table') echo 'selected="selected"' ?> >Table mode</option>
-				</select>
-</td>
-            </tr>
+function ecwid_advanced_settings_do_page() {
+	wp_register_script('ecwid-appearance-js', plugins_url('ecwid-shopping-cart/js/advanced.js'), array(), '', '');
+	wp_enqueue_script('ecwid-appearance-js');
 
-                            <tr><th scope="row"><label for="ecwid_pb_searchview">Default view mode on search results</label></th>
-                            <td>
-				<select id="ecwid_pb_searchview" name="ecwid_pb_searchview" <?php echo $disabled_str;?> >
-					<option value="grid" <?php if($ecwid_pb_searchview == 'grid') echo 'selected="selected"' ?> >Grid mode</option>
-					<option value="list" <?php if($ecwid_pb_searchview == 'list') echo 'selected="selected"' ?> >List mode</option>
-					<option value="table" <?php if($ecwid_pb_searchview == 'table') echo 'selected="selected"' ?> >Table mode</option>
-				</select>
-</td>
-            </tr>
+	wp_register_script('select2-js', plugins_url('ecwid-shopping-cart/lib/select2/select2.js'), array(), '', '');
+	wp_enqueue_script('select2-js');
 
-         <tr><th colspan="2" style="padding:0px;margin:0px;"><h3 style="padding:0px;margin:0px;">SEO</h3></th></tr>
+	wp_register_style('select2-css', plugins_url('ecwid-shopping-cart/lib/select2/select2.css'), array(), '', 'all');
+	wp_enqueue_style('select2-css');
 
-         <tr>
-            <th scope="row"><label for="ecwid_mobile_catalog_link">Full link to your mobile catalog</label></th>
-            <td><input id="ecwid_mobile_catalog_link" type="text" name="ecwid_mobile_catalog_link" value="<?php  echo $ecwid_mobile_catalog_link; ?>" />
-&nbsp;&nbsp;&nbsp;&nbsp;<img src="//www.ecwid.com/wp-content/uploads/ecwid_wp_attention.gif" alt="">&nbsp;For example <em>http://mdemo.ecwid.com</em>.&nbsp;<a href="http://kb.ecwid.com/Mobile-Catalog" target="_blank">Information about Ecwid and mobile catalogs.</a></td>
-         </tr>
-             
-                        <tr><th colspan="2" style="padding:0px;margin:0px;"><h3 style="padding:0px;margin:0px;">Advanced</h3></th></tr>
-           
-                <tr><th scope="row"><label for="ecwid_enable_ssl">
-Single Sign-on Secret Key: </label>
-</th>
-    <td>
-<table>
-<tr>
-<td style="padding-top:0;padding-left:0;vertical-align:top;">
-<input id="ecwid_sso_secret_key" type="text" name="ecwid_sso_secret_key" value="<?php echo $ecwid_sso_secret_key; ?>" />
-</td>
-<td style="padding:0;vertical-align:top;">
-<img src="//www.ecwid.com/wp-content/uploads/ecwid_wp_attention.gif" alt="">&nbsp;This feature allows your customers to sign into your WordPress site and fully use your store without having to sign into Ecwid. I.e. if a customer is logged in to your site, he/she is logged in to your store automatically, even if he/she didn't have an account in your store before. In order to enable this feature you should set the secret key that can be found on the "System Settings > API > Single Sign-on API" page in your Ecwid control panel. Please note that this API is available only to <a href="http://www.ecwid.com/compare-plans.html">paid users</a>.
-</td>
-</tr>
-</table>
+	$categories = false;
+	if (ecwid_is_paid_account()) {
+		$api = ecwid_new_product_api();
+		$categories = $api->get_all_categories();
+		$by_id = array();
+		foreach ($categories as $key => $category) {
+			$by_id[$category['id']] = $category;
+		}
+		unset($categories);
 
-</td>            </tr>
+		foreach ($by_id as $id => $category) {
+			$name_path = array($category['name']);
+			while (isset($category['parentId'])) {
+				$category = $by_id[$category['parentId']];
+				$name_path[] = $category['name'];
+			}
 
- 
-                <tr><th scope="row"><label for="ecwid_enable_ssl">
-Enable the following option, if you use Ecwid on a secure HTTPS page</label>
-</th>
-    <td><input id="ecwid_enable_ssl" type="checkbox" name="ecwid_enable_ssl" <?php if (!empty($ecwid_enable_ssl)) echo "checked=\"checked\"";?> />
-&nbsp;&nbsp;&nbsp;&nbsp;<img src="//www.ecwid.com/wp-content/uploads/ecwid_wp_attention.gif" alt="">&nbsp;<a href="http://kb.ecwid.com/SSL-HTTPS" target="_blank">Information about Ecwid and SSL/HTTPS</a>
+			$by_id[$id]['path'] = array_reverse($name_path);
+			$by_id[$id]['path_str'] = implode(" > ", $by_id[$id]['path']);
+		}
 
-</td>            </tr>
-            
-           
-                           <tr><th scope="row"><label for="ecwid_default_category_id">
-Default category ID</label>
-</th>
-    <td><input id="ecwid_default_category_id" type="text" name="ecwid_default_category_id" value="<?php  echo $ecwid_default_category_id; ?>"/>
-&nbsp;&nbsp;&nbsp;&nbsp;<img src="//www.ecwid.com/wp-content/uploads/ecwid_wp_attention.gif" alt="">&nbsp;<a href="http://kb.ecwid.com/Default-category-for-product-browser" target="_blank">What is it?</a>
+		function sort_by_path($a, $b) {
+			return strcmp($a['path_str'], $b['path_str']);
+		}
 
-</td>            </tr>
-           
-            
-            </table>
-            <p class="submit">
-            <input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
-            </p>
+		uasort($by_id, 'sort_by_path');
 
-    <style>
-        ul#ecwid-instruction-ul li, ul#ecwid-need-manual-editing-ul li {
-            padding-bottom:10px;
-        }
-    </style> 
+		$categories = $by_id;
+	}
 
+	require_once plugin_dir_path(__FILE__) . '/templates/advanced-settings.php';
+}
 
-<?php 
-    if ($disabled) {
-?>
+function ecwid_appearance_settings_do_page() {
 
-<div id="ecwid-need-manual-editing" >
-</div> 
+	wp_register_script('ecwid-appearance-js', plugins_url('ecwid-shopping-cart/js/appearance.js'), array(), '', '');
+	wp_enqueue_script('ecwid-appearance-js');
 
+	$disabled = false;
+	if (!empty($ecwid_page_id) && ($ecwid_page_id > 0)) {
+		$_tmp_page = get_post($ecwid_page_id);
+		$content = $_tmp_page->post_content;
+		if ( (strpos($content, "[ecwid_productbrowser]") === false) && (strpos($content, "xProductBrowser") !== false) )
+			$disabled = true;
+	}
+	// $disabled_str is used in appearance settings template
+	if ($disabled)
+		$disabled_str = 'disabled = "disabled"';
+	else
+		$disabled_str = "";
 
-<?php
-    
-    }
-
-?>
-
-<?php 
-if ($store_id == '1003') {
-?>
-    <div id="ecwid-instruction" >
-<h4>Instruction on how to get your free Store ID</h4>
-<ul style="padding-left:30px;list-style-type:disc;" id="ecwid-instruction-ul">
-    <li>Go to the <a target="_blank" href="https://my.ecwid.com/cp/?source=wporg#register">Ecwid control panel</a>. Open this URL: <a target="_blank" href="https://my.ecwid.com/cp/?source=wporg#register">https://my.ecwid.com/cp?source=wporg#register</a>. You will get to 'Sign In or Register' form.</li>
-    <li>Register an account at Ecwid. Use section &quot;Using Ecwid account&quot; for that. The registration is free.
-    <p>Or you can log in using your account at Gmail, Facebook, Twitter, Yahoo, or another provider. Choose one from the list of the providers (click on 'More providers' if you don't see your provider there). Click on the provider logo, you will be redirected to the account login page. Submit your username/password there to login to your Ecwid.</p>
-    <p>Note: the login might take several seconds. Please, be patient.</p>
-    </li>
-    <li>Look at the right bottom corner of the page.</li>
-    <li>You will see the&nbsp;<span style="background-color:#d3e9e9;">&quot;Store ID: <strong>NNNNNN</strong>&quot;</span> text, where <strong>NNNNNN</strong> is your <strong>Store ID</strong>.<br />
-    <p>For example if the text is&nbsp;<span style="background-color:#d3e9e9;">Store ID:</span> <strong><span style="background-color:#d3e9e9;">1003</span></strong>, your Store ID is <strong>1003</strong>. &nbsp;</p><br />
-    You will also get your Store ID by email.
-    </li>
-</ul>
-<p>If you have any questions, feel free to ask them on <a href="http://www.ecwid.com/forums/?source=wporg">Ecwid forums</a> or <a href="http://www.ecwid.com/contact-us.html?source=wporg">contact Ecwid team</a>.</p>
- </div>
- <?php 
- }
- ?>
-        </form>
-
-
-
-    </div>
-    <?php   
-} 
+	require_once ECWID_PLUGIN_DIR . 'templates/appearance-settings.php';
+}
   
 function get_ecwid_store_id() {
     static $store_id = null;
     if (is_null($store_id)) {
         $store_id = get_option('ecwid_store_id');
         if (empty($store_id))
-          $store_id = 1003;
+          $store_id = ECWID_DEMO_STORE_ID;
     }
 	return $store_id;
-} 
- 
-function get_ecwid_protocol() {
-        static $ecwid_enable_ssl = null;
-        if (is_null($ecwid_enable_ssl)) {
-            $ecwid_enable_ssl = get_option('ecwid_enable_ssl');
-        }
-        if (empty($ecwid_enable_ssl)) {
-            return "http";
-        }
-        else {
-            return "https";
-        }
-} 
- 
+}
+
 function ecwid_dashboard_widget_function() {
 echo "<a href=\"https://my.ecwid.com/\" target=\"_blank\">Go to the Ecwid Control Panel</a><br /><br /><a href=\"http://kb.ecwid.com/\" target=\"_blank\">Ecwid Knowledge Base</a>&nbsp;|&nbsp;<a href=\"http://www.ecwid.com/forums/\" target=\"_blank\">Ecwid Forums</a>";
 } 
@@ -813,19 +775,19 @@ function ecwid_add_dashboard_widgets() {
   if (current_user_can('administrator')) {
     wp_add_dashboard_widget('ecwid_dashboard_widget','Ecwid Links', 'ecwid_dashboard_widget_function');	
   }
-  } 
-
+}
 
 
 class EcwidMinicartWidget extends WP_Widget {
 
     function EcwidMinicartWidget() {
-    $widget_ops = array('classname' => 'widget_ecwid_minicart', 'description' => __( "Your store's minicart") );
-    $this->WP_Widget('ecwidminicart', __('Ecwid Shopping Bag (Normal)'), $widget_ops);
-    }
+		$widget_ops = array('classname' => 'widget_ecwid_minicart', 'description' => __("Your store's minicart", 'ecwid-shopping-cart') );
+    	$this->WP_Widget('ecwidminicart', __('Ecwid Shopping Bag (Normal)', 'ecwid-shopping-cart'), $widget_ops);
+
+	}
 
     function widget($args, $instance) {
-        extract($args);
+	    extract($args);
         $title = apply_filters('widget_title', empty($instance['title']) ? '&nbsp;' : $instance['title']);
 
         echo $before_widget;
@@ -833,12 +795,8 @@ class EcwidMinicartWidget extends WP_Widget {
         if ( $title )
             echo $before_title . $title . $after_title;
 
-        $store_id = get_ecwid_store_id();
-        $ecwid_protocol = get_ecwid_protocol();
         echo '<div>';
         echo ecwid_get_scriptjs_code();
-        //echo "<div><script type=\"text/javascript\" src=\"$ecwid_protocol://" . APP_ECWID_COM . "/script.js?$store_id\"></script>";
-
 
         $ecwid_page_id = get_option("ecwid_store_page_id");
         $page_url = get_page_link($ecwid_page_id);
@@ -873,8 +831,8 @@ EOT;
 class EcwidMinicartMiniViewWidget extends WP_Widget {
 
     function EcwidMinicartMiniViewWidget() {
-    $widget_ops = array('classname' => 'widget_ecwid_minicart_miniview', 'description' => __( "Your store's minicart") );
-    $this->WP_Widget('ecwidminicart_miniview', __('Ecwid Shopping Bag (Mini view)'), $widget_ops);
+    $widget_ops = array('classname' => 'widget_ecwid_minicart_miniview', 'description' => __("Your store's minicart", 'ecwid-shopping-cart') );
+    $this->WP_Widget('ecwidminicart_miniview', __('Ecwid Shopping Bag (Mini view)', 'ecwid-shopping-cart'), $widget_ops);
     }
 
     function widget($args, $instance) {
@@ -886,12 +844,8 @@ class EcwidMinicartMiniViewWidget extends WP_Widget {
         if ( $title )
             echo $before_title . $title . $after_title;
 
-        $store_id = get_ecwid_store_id();
-        $ecwid_protocol = get_ecwid_protocol();
         echo '<div>';
         echo ecwid_get_scriptjs_code();
-        //echo "<div><script type=\"text/javascript\" src=\"$ecwid_protocol://" . APP_ECWID_COM . "/script.js?$store_id\"></script>";
-
 
         $ecwid_page_id = get_option("ecwid_store_page_id");
         $page_url = get_page_link($ecwid_page_id);
@@ -927,8 +881,8 @@ EOT;
 class EcwidSearchWidget extends WP_Widget {
 
     function EcwidSearchWidget() {
-    $widget_ops = array('classname' => 'widget_ecwid_search', 'description' => __( "Your store's search box") );
-    $this->WP_Widget('ecwidsearch', __('Ecwid Search Box'), $widget_ops);
+    $widget_ops = array('classname' => 'widget_ecwid_search', 'description' => __("Your store's search box", 'ecwid-shopping-cart'));
+    $this->WP_Widget('ecwidsearch', __('Ecwid Search Box', 'ecwid-shopping-cart'), $widget_ops);
     }
 
     function widget($args, $instance) {
@@ -940,11 +894,9 @@ class EcwidSearchWidget extends WP_Widget {
       if ( $title )
       echo $before_title . $title . $after_title;
 
-        $store_id = get_ecwid_store_id();
-      $ecwid_protocol = get_ecwid_protocol();
       echo '<div>';
       echo ecwid_get_scriptjs_code();
-        //echo "<div><script type=\"text/javascript\" src=\"$ecwid_protocol://" . APP_ECWID_COM . "/script.js?$store_id\"></script>";
+
 	$ecwid_page_id = get_option("ecwid_store_page_id");
         $page_url = get_page_link($ecwid_page_id);
                 $_tmp_page = get_page($ecwid_page_id);
@@ -978,8 +930,8 @@ echo $after_widget;
 class EcwidVCategoriesWidget extends WP_Widget {
 
     function EcwidVCategoriesWidget() {
-    $widget_ops = array('classname' => 'widget_ecwid_vcategories', 'description' => __( "Vertical menu of categories") );
-    $this->WP_Widget('ecwidvcategories', __('Ecwid Vertical Categories'), $widget_ops);
+    $widget_ops = array('classname' => 'widget_ecwid_vcategories', 'description' => __('Vertical menu of categories', 'ecwid-shopping-cart'));
+    $this->WP_Widget('ecwidvcategories', __('Ecwid Vertical Categories', 'ecwid-shopping-cart'), $widget_ops);
     }
 
     function widget($args, $instance) {
@@ -991,11 +943,8 @@ class EcwidVCategoriesWidget extends WP_Widget {
       if ( $title )
       echo $before_title . $title . $after_title;
 
-        $store_id = get_ecwid_store_id();
-      $ecwid_protocol = get_ecwid_protocol();
       echo '<div>';
       echo ecwid_get_scriptjs_code();
-       // echo "<div><script type=\"text/javascript\" src=\"$ecwid_protocol://" . APP_ECWID_COM . "/script.js?$store_id\"></script>";
 	$ecwid_page_id = get_option("ecwid_store_page_id");
         $page_url = get_page_link($ecwid_page_id);
                 $_tmp_page = get_page($ecwid_page_id);
@@ -1031,7 +980,7 @@ function ecwid_sidebar_widgets_init() {
 	register_widget('EcwidMinicartWidget');
 	register_widget('EcwidSearchWidget');
 	register_widget('EcwidVCategoriesWidget');
-  register_widget('EcwidMinicartMiniViewWidget');
+	register_widget('EcwidMinicartMiniViewWidget');
 }
 
 add_action('widgets_init', 'ecwid_sidebar_widgets_init');
@@ -1104,6 +1053,11 @@ function ecwid_hmacsha1($data, $key) {
             );
     return bin2hex($hmac);
     }
+}
+
+function ecwid_is_paid_account()
+{
+	return ecwid_is_api_enabled() && get_ecwid_store_id() != ECWID_DEMO_STORE_ID;
 }
 
 function ecwid_is_api_enabled()
