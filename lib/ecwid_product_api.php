@@ -98,17 +98,32 @@ class EcwidProductApi {
 	}
 
 	function get_product($product_id) {
+		static $cached;
+
 		$product_id = intval($product_id);
+
+		if (isset($cached[$product_id])) {
+			return $cached[$product_id];
+		}
+
 		$api_url = $this->ECWID_PRODUCT_API_ENDPOINT . "/" . $this->store_id . "/product?id=" . $product_id;
-		$product = $this->process_request($api_url);
-		return $product;
+		$cached[$product_id] = $this->process_request($api_url);
+
+		return $cached[$product_id];
 	}
 
 	function get_category($category_id) {
+		static $cached = array();
+
 		$category_id = intval($category_id);
+
+		if (isset($cached[$category_id])) {
+			return $cached[$category_id];
+		}
 		$api_url = $this->ECWID_PRODUCT_API_ENDPOINT . "/" . $this->store_id . "/category?id=" . $category_id;
-		$category = $this->process_request($api_url);
-		return $category;
+		$cached[$category_id] = $this->process_request($api_url);
+
+		return $cached[$category_id];
 	}
         
 	function get_batch_request($params) {

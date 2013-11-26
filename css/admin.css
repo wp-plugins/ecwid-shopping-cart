@@ -28,3 +28,12 @@
 	line-height: 32px;
 	margin-bottom: 30px;
 }
+
+#hide-vote-message {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+#hide-vote-message.hiding {
+	cursor: wait;
+}

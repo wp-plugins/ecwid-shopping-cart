@@ -32,18 +32,20 @@ Links
 
 == Installation ==
 
-**Automatic installation (the easiest way).**
+Automatic installation (the easiest way)
+----------------------------------------
 
 1. Go to your WP admin panel → Plugins → Add New
 2. Under Search, type in 'Ecwid', click Search
 3. In the search results find the 'Ecwid Shopping Cart' plugin and click 'Install now' to install it
 4. When plugin is installed click 'Activate Plugin' link
-5. Log in into Ecwid control panel at https://my.ecwid.com and copy your numeric Store ID. Go to 'Settings → Ecwid shopping cart' page in WP admin panel and paste Store ID in the corresponding field.
+5. Log in into Ecwid control panel at https://my.ecwid.com and copy your numeric Store ID. Go to 'Ecwid Store → General' page in WP admin panel and paste Store ID in the corresponding field.
 
-**IMPORTANT**: when the plugin is installed, you will need to activate it on the Plugins page (click 'Activate' link) and configure it on the 'Settings → Ecwid shopping cart' page (at least, you will need to set your store ID there).
+**IMPORTANT**: when the plugin is installed, you will need to activate it on the Plugins page (click 'Activate' link) and configure it on the 'Ecwid Store → General' page (at least, you will need to set your store ID there).
 
 
-**Alternative ways:**
+Alternative ways
+----------------
 
 **Uploading the plugin zip archive in your admin panel**
 
@@ -78,6 +80,16 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 - Knowledge Base: [http://kb.ecwid.com](http://kb.ecwid.com)
 
 == Changelog ==
+= 2.1 =
+- Our plugin backend is now available in Italian, Russian and English. Thanks to Luciano Del Fico for the great help with the Italian translation.
+
+- Improvements and bug fixes, including
+  - Better SEO for store pages: search engines will now index product options list and category descriptions
+  - Compatibility with WP Minify (Wordpress sites optimization plugin)
+  - Improved compatibility with Yoast WP SEO plugin: Ecwid SEO page titles are shown properly with enabled Yoast's "Force Rewrite Titles" option
+  - Minor text and design tweaks of the plugin settings pages
+
+
 = 2.0 =
 - **New revamped plugin settings**: the new settings layout makes the plugin easy and intuitive for starters, yet powerful and advanced for experienced merchants.
 
