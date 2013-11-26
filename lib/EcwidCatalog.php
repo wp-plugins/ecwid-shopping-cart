@@ -157,13 +157,15 @@ class EcwidCatalog
 
 	function get_category($id)
 	{
-		$params = array
-		(
-			array('alias' => 'category', "action" => "category", "params" => array("id" => $id)),
-			array("alias" => "c", "action" => "categories", "params" => array("parent" => $id)),
-			array("alias" => "p", "action" => "products", "params" => array("category" => $id)),
-			array("alias" => "pf", "action" => "profile")
-		);
+                $params = array
+                (
+                        array("alias" => "c", "action" => "categories", "params" => array("parent" => $id)),
+                        array("alias" => "p", "action" => "products", "params" => array("category" => $id)),
+                        array("alias" => "pf", "action" => "profile")
+                ); 
+                if ($id > 0) {
+                        $params[] = array('alias' => 'category', "action" => "category", "params" => array("id" => $id));
+                }
 
 		$batch_result = $this->ecwid_api->get_batch_request($params);
 
