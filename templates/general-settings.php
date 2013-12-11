@@ -19,6 +19,7 @@
 				<div class="main-message"><?php _e('Greetings!', 'ecwid-shopping-cart'); ?></div>
 				<div class="secondary-message"?><?php _e('Your Ecwid store is connected to your WordPress website.', 'ecwid-shopping-cart'); ?></div>
 				<?php endif; ?>
+				<img class="greeting-image" src="<?php echo(esc_attr(ECWID_PLUGIN_URL)); ?>/images/store_ready.png" width="142" />
 			</div>
 			<hr />
 			<div class="section">
@@ -67,7 +68,7 @@
 							<?php _e('Billing and plans', 'ecwid-shopping-cart'); ?>
 						</a>
 					<?php else: ?>
-						<a class="pure-button pure-button-primary" target="_blank" href="http://www.ecwid.com/plans-and-pricing.html">
+						<a class="<?php echo ECWID_MAIN_BUTTON_CLASS; ?>" target="_blank" href="http://www.ecwid.com/plans-and-pricing.html">
 							<?php _e('Upgrade', 'ecwid-shopping-cart'); ?>
 						</a>
 					<?php endif; ?>

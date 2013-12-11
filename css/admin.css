@@ -1,4 +1,5 @@
 #wpadminbar .ecwid-top-menu-item {
+	margin-top: 0px;
 	width: 23px;
 	height: 28px;
 	background: url(../images/icon-head-default.png) no-repeat 0% 2px;
@@ -27,4 +28,17 @@
 	padding-left: 43px;
 	line-height: 32px;
 	margin-bottom: 30px;
+}
+
+#hide-vote-message {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+#hide-vote-message.hiding {
+	cursor: wait;
+}
+
+#wp-toolbar > ul > li#wp-admin-bar-ecwid-main {
+	display: block;
 }
