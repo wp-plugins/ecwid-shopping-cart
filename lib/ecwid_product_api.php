@@ -98,17 +98,32 @@ class EcwidProductApi {
 	}
 
 	function get_product($product_id) {
+		static $cached;
+
 		$product_id = intval($product_id);
+
+		if (isset($cached[$product_id])) {
+			return $cached[$product_id];
+		}
+
 		$api_url = $this->ECWID_PRODUCT_API_ENDPOINT . "/" . $this->store_id . "/product?id=" . $product_id;
-		$product = $this->process_request($api_url);
-		return $product;
+		$cached[$product_id] = $this->process_request($api_url);
+
+		return $cached[$product_id];
 	}
 
 	function get_category($category_id) {
+		static $cached = array();
+
 		$category_id = intval($category_id);
+
+		if (isset($cached[$category_id])) {
+			return $cached[$category_id];
+		}
 		$api_url = $this->ECWID_PRODUCT_API_ENDPOINT . "/" . $this->store_id . "/category?id=" . $category_id;
-		$category = $this->process_request($api_url);
-		return $category;
+		$cached[$category_id] = $this->process_request($api_url);
+
+		return $cached[$category_id];
 	}
         
 	function get_batch_request($params) {
@@ -162,16 +177,52 @@ class EcwidProductApi {
 		return $profile;
 	}
 
-  function is_api_enabled() {
-    // quick and lightweight request
-    $api_url = $this->ECWID_PRODUCT_API_ENDPOINT . "/" . $this->store_id . "/profile";
-    $this->process_request($api_url);
-    if ($this->error_code === '') {
-      return true;
-    } else {
-      return false;
-    }
-  }
+ 	function is_api_enabled() {
+		// quick and lightweight request
+		$api_url = $this->ECWID_PRODUCT_API_ENDPOINT . "/" . $this->store_id . "/profile";
+		$this->process_request($api_url);
+		if ($this->error_code === '') {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	function get_method_response_stream($method)
+	{
+		$request_url = '';
+		switch($method) {
+			case 'products':
+			case 'categories':
+				$request_url = $this->ECWID_PRODUCT_API_ENDPOINT . '/' . $this->store_id . '/' . $method;
+				break;
+			default:
+				return false;
+		}
+
+		$stream = null;
+		if (ini_get('allow_url_fopen')) {
+			$stream = fopen($request_url, 'r');
+		} elseif (version_compare(PHP_VERSION, '5.1.0')) {
+
+			$body = '';
+
+			if (defined('WP_CONTENT_DIR') && function_exists('get_temp_dir') && function_exists('wp_remote_get')) {
+				// we are in wordpress
+				$response = wp_remote_get($request_url);
+				$body = $response['body'];
+			} else {
+				$response = internal_fetch_url_libcurl($request_url);
+				$body = $response['data'];
+			}
+
+			$stream = fopen('php://temp', 'rw');
+			fwrite($stream, $body);
+			rewind($stream);
+		}
+
+		return $stream;
+	}
 }
 
 ?>
