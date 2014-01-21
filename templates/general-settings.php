@@ -1,8 +1,7 @@
-<div class="wrap pure-form ecwid-settings general-settings">
-	<h2><?php _e('Ecwid Shopping Cart - General settings', 'ecwid-shopping-cart'); ?></h2>
+<div class="wrap">
 
-
-	<form method="POST" action="options.php" name="settings">
+	<form method="POST" action="options.php" class="pure-form ecwid-settings general-settings" name="settings">
+		<h2><?php _e('Ecwid Shopping Cart - General settings', 'ecwid-shopping-cart'); ?></h2>
 		<?php settings_fields('ecwid_options_page'); ?>
 		<fieldset>
 
@@ -14,7 +13,7 @@
 				</div>
 
 				<div class="messages-container">
-					<?php if ($_GET['settings-updated']): ?>
+					<?php if (array_key_exists('settings-updated', $_GET)): ?>
 
 					<div class="main-message"><?php _e('Congratulations!', 'ecwid-shopping-cart'); ?></div>
 					<div class="secondary-message"?><?php _e('Your Ecwid store is now connected to your WordPress website.', 'ecwid-shopping-cart'); ?></div>
@@ -33,7 +32,7 @@
 						<?php _e('Store ID', 'ecwid-shopping-cart'); ?>: <strong><? echo esc_attr(get_ecwid_store_id()); ?></strong>
 					</span>
 				</div>
-				<div class="right"">
+				<div class="right two-buttons">
 					<a class="pure-button" target="_blank" href="https://my.ecwid.com/cp/?source=wporg#t1=&t2=Dashboard">
 						<?php _e('Control panel', 'ecwid-shopping-cart'); ?>
 					</a>

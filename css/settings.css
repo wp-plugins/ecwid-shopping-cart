@@ -47,9 +47,44 @@
 	box-shadow: none;
 }
 
+.pure-control-group.small-input > div {
+	display: table-cell;
+	vertical-align: middle;
+	position: relative;
+}
+
+.pure-control-group.small-input .label {
+	width: 265px;
+	font-weight: bold;
+}
+
+.pure-control-group.small-input .input > div {
+	width: 45px;
+	text-align: center;
+	vertical-align: middle;
+	z-index: 10;
+	position: relative;
+	left: 265px;
+}
+
+.pure-control-group.small-input .input input {
+	margin: 0px auto;
+}
+
+.pure-control-group.small-input .label > * {
+	position: relative;
+	left: -45px;
+}
+
 /* 2.8 compatibility for left menu icon */
 .wp-menu-image>a>img {
 display: none;
+}
+
+@media screen and (max-width: 782px) {
+	.ecwid-settings {
+		width: 100%;
+	}
 }
 
 .ecwid-settings {
@@ -323,7 +358,12 @@ display: none;
 }
 
 .general-settings .ecwid-account-buttons .pure-button {
-	margin: 20px 17px 20px 0px;
+	margin: 5px 17px 5px 0px;
+}
+
+.general-settings .ecwid-account-buttons {
+	padding: 20px 0px;
+	margin-bottom: -5px;
 }
 
 .general-settings p.note {

@@ -35,6 +35,7 @@ if ( is_admin() ){
   add_filter('plugins_loaded', 'ecwid_load_textdomain');
   add_filter('plugin_action_links_ecwid-shopping-cart/ecwid-shopping-cart.php', 'ecwid_plugin_actions');
   add_action('admin_head', 'ecwid_ie8_fonts_inclusion');
+  add_action('sm_buildmap', 'ecwid_build_sitemap_pages');
 } else {
   add_shortcode('ecwid_script', 'ecwid_script_shortcode');
   add_shortcode('ecwid_minicart', 'ecwid_minicart_shortcode');
@@ -44,6 +45,7 @@ if ( is_admin() ){
   add_action('init', 'ecwid_backward_compatibility');
   add_action('send_headers', 'ecwid_503_on_store_closed');
   add_action('template_redirect', 'ecwid_404_on_broken_escaped_fragment');
+  add_action('wp_loaded', 'ecwid_seo_ultimate_compatibility', 0);
   add_action('wp_title', 'ecwid_seo_compatibility_init', 0);
   add_filter('wp_title', 'ecwid_seo_title', 20);
   add_action('plugins_loaded', 'ecwid_minifier_compatibility', 0);
@@ -52,9 +54,12 @@ if ( is_admin() ){
   add_action('wp_head', 'ecwid_meta');
   add_action('wp_head', 'ecwid_seo_compatibility_restore', 1000);
   add_filter( 'widget_meta_poweredby', 'ecwid_add_credits');
+  add_filter('the_content', 'ecwid_content_started', 0);
   $ecwid_seo_title = '';
 }
 add_action('admin_bar_menu', 'add_ecwid_admin_bar_node', 1000);
+
+$ecwid_script_rendered = false; // controls single script.js on page
 
 $version = get_bloginfo('version');
 
@@ -88,6 +93,7 @@ if (version_compare($version, '3.6') < 0) {
 		}
 	}
 }
+
 $theme_name = '';
 if (version_compare($version, '3.4') < 0) {
 	$theme_name = get_current_theme();
@@ -202,6 +208,33 @@ function ecwid_backward_compatibility() {
     }
 }
 
+
+function ecwid_build_sitemap_pages()
+{
+	$page_url = get_page_link(get_option("ecwid_store_page_id"));
+
+	include ECWID_PLUGIN_DIR . '/lib/EcwidSitemapBuilder.php';
+
+	$sitemap = new EcwidSitemapBuilder($page_url, 'build_sitemap_callback', ecwid_new_product_api());
+
+	$sitemap->generate();
+}
+
+function build_sitemap_callback($url, $priority, $frequency)
+{
+	echo $url . '<br />';
+
+	static $generatorObject = null;
+	if (is_null($generatorObject)) {
+		$generatorObject = &GoogleSitemapGenerator::GetInstance(); //Please note the "&" sign!
+	}
+
+	if($generatorObject != null) {
+		$page = new GoogleSitemapGeneratorPage($url, $priority, $frequency);
+		$generatorObject->AddElement($page);
+	}
+}
+
 function ecwid_minifier_compatibility()
 {
 	if ( !function_exists( 'get_plugins' ) ) { require_once ( ABSPATH . 'wp-admin/includes/plugin.php' ); }
@@ -230,6 +263,19 @@ function ecwid_override_option($name, $new_value = null)
     } else {
         update_option($name, $overridden[$name]);
     }
+}
+
+function ecwid_seo_ultimate_compatibility()
+{
+	global $seo_ultimate;
+
+	if ($seo_ultimate) {
+		remove_action('template_redirect', array($seo_ultimate->modules['titles'], 'before_header'), 0);
+		remove_action('wp_head', array($seo_ultimate->modules['titles'], 'after_header'), 1000);
+		remove_action('su_head', array($seo_ultimate->modules['meta-descriptions'], 'head_tag_output'));
+		remove_action('su_head', array($seo_ultimate->modules['canonical'], 'link_rel_canonical_tag'));
+		remove_action('su_head', array($seo_ultimate->modules['canonical'], 'http_link_rel_canonical'));
+	}
 }
 
 function ecwid_seo_compatibility_init($title)
@@ -262,9 +308,9 @@ function ecwid_seo_compatibility_init($title)
     // Canonical
     $aioseop_options['aiosp_can'] = false;
     // Title
-	add_filter('aioseop_title', __return_null);
+	add_filter('aioseop_title', '__return_null');
 	// Description
-	add_filter('aioseop_description', __return_null);
+	add_filter('aioseop_description', '__return_null');
 
 
 	return $title;
@@ -414,8 +460,14 @@ function ecwid_get_product_and_category($category_id, $product_id) {
     $api = ecwid_new_product_api();
     $batch_result = $api->get_batch_request($params);
 
-    $category = $batch_result["c"];
-    $product = $batch_result["p"];
+	if (false == $batch_result) {
+		$product = $api->get_product($product_id);
+		$category = false;
+	} else {
+		$category = $batch_result["c"];
+		$product = $batch_result["p"];
+	}
+
     $return = "";
 
     if (is_array($product)) {
@@ -487,6 +539,15 @@ function ecwid_add_credits($powered_by)
 	return $powered_by;
 }
 
+function ecwid_content_started($content)
+{
+	global $ecwid_script_rendered;
+
+	$ecwid_script_rendered = false;
+
+	return $content;
+}
+
 function ecwid_wrap_shortcode_content($content)
 {
     return "<!-- Ecwid shopping cart plugin v 2.2 -->"
@@ -496,16 +557,18 @@ function ecwid_wrap_shortcode_content($content)
 }
 
 function ecwid_get_scriptjs_code($force_lang = null) {
-    if (!defined('ECWID_SCRIPTJS')) {
-      $store_id = get_ecwid_store_id();
-	  $force_lang_str = !is_null($force_lang) ? "&lang=$force_lang" : '';
-      $s =  '<script type="text/javascript" data-cfasync="false" src="//' . APP_ECWID_COM . '/script.js?' . $store_id . $force_lang_str . '"></script>';
+	global $ecwid_script_rendered;
 
-	  define('ECWID_SCRIPTJS','Yep');
-      $s = $s . ecwid_sso(); 
-      return $s;
+    if (!$ecwid_script_rendered) {
+		$store_id = get_ecwid_store_id();
+		$force_lang_str = !is_null($force_lang) ? "&lang=$force_lang" : '';
+		$s =  '<script type="text/javascript" data-cfasync="false" src="//' . APP_ECWID_COM . '/script.js?' . $store_id . $force_lang_str . '"></script>';
+		$s = $s . ecwid_sso();
+		$ecwid_script_rendered = true;
+
+		return $s;
     } else {
-      return '';
+		return '';
     }
 }
 
@@ -719,7 +782,7 @@ EOT;
 }
 
 function ecwid_show_admin_messages() {
-	if (get_ecwid_store_id() == ECWID_DEMO_STORE_ID && $_GET['page'] != 'ecwid') {
+	if (get_ecwid_store_id() == ECWID_DEMO_STORE_ID && isset($_GET['page']) && $_GET['page'] != 'ecwid') {
 
 		$ecwid_page_id = get_option("ecwid_store_page_id");
 		$page_url = get_page_link($ecwid_page_id);
@@ -814,7 +877,6 @@ function ecwid_options_add_page() {
 }
 
 function ecwid_register_admin_styles() {
-	global $version;
 
 	wp_register_style('ecwid-admin-css', plugins_url('ecwid-shopping-cart/css/admin.css'), array(), '', 'all');
 	wp_enqueue_style('ecwid-admin-css');
@@ -826,7 +888,6 @@ function ecwid_register_admin_styles() {
 }
 
 function ecwid_register_settings_styles() {
-	global $version;
 
 	wp_register_style('ecwid-settings-pure-css', plugins_url('ecwid-shopping-cart/css/pure-min.css'), array(), '', 'all');
 	wp_enqueue_style('ecwid-settings-pure-css');
@@ -978,6 +1039,138 @@ function ecwid_add_dashboard_widgets() {
   }
 }
 
+
+class EcwidBadgeWidget extends WP_Widget {
+
+	var $url_template = "http://static.ecwid.com/badges/%s.png";
+	var $available_badges;
+	
+	function EcwidBadgeWidget() {
+		$widget_ops = array('classname' => 'widget_ecwid_badge', 'description' => __("If you like Ecwid and want to help it grow and become the most popular e-commerce solution, you can now add a fancy 'Powered by Ecwid' badge on your site to show your visitors that you're a proud user of Ecwid.", 'ecwid-shopping-cart') );
+		$this->WP_Widget('ecwidbadge', __('Ecwid Badge', 'ecwid-shopping-cart'), $widget_ops);
+
+		$this->available_badges = array(
+			'ecwid-shopping-cart-widget-5' => array (
+				'name'   => 'ecwid-shopping-cart-widget-5',
+				'width'  => '73',
+				'height' => '20',
+				'alt'    => __('Ecwid shopping cart widget', 'ecwid-shopping-cart')
+			),
+			'ecwid-shopping-cart-widget-6' => array (
+				'name'   => 'ecwid-shopping-cart-widget-6',
+				'width'  => '73',
+				'height' => '20',
+				'alt'    => __('Ecwid shopping cart widget', 'ecwid-shopping-cart')
+			),
+			'ecwid-shopping-cart-2' => array (
+				'name'   => 'ecwid-shopping-cart-3',
+				'width'  => '165',
+				'height' => '56',
+				'alt'    => __('Ecwid shopping cart', 'ecwid-shopping-cart')
+			),
+			'ecwid-ecommerce-widgets-2' => array (
+				'name'   => 'ecwid-ecommerce-widgets-3',
+				'width'  => '165',
+				'height' => '58',
+				'alt'    => __('Ecwid e-commerce widgets', 'ecwid-shopping-cart')
+			),
+			'ecwid-ecommerce-solution-2' => array (
+				'name'   => 'ecwid-ecommerce-solution-2',
+				'width'  => '165',
+				'height' => '58',
+				'alt'    => __('Ecwid ecommerce solution', 'ecwid-shopping-cart')
+			),
+			'ecwid-free-shopping-cart-2' => array (
+				'name'   => 'ecwid-free-shopping-cart-2',
+				'width'  => '175',
+				'height' => '58',
+				'alt'    => __('Ecwid free shopping cart', 'ecwid-shopping-cart')
+			),
+			'ecwid-shopping-cart-3' => array (
+				'name'   => 'ecwid-shopping-cart-3',
+				'width'  => '165',
+				'height' => '56',
+				'alt'    => __('Ecwid shopping cart', 'ecwid-shopping-cart')
+			),
+			'ecwid-ecommerce-widgets-3' => array (
+				'name'   => 'ecwid-ecommerce-widgets-3',
+				'width'  => '165',
+				'height' => '58',
+				'alt'    => __('Ecwid e-commerce widgets', 'ecwid-shopping-cart')
+			),
+			'ecwid-ecommerce-solution-3' => array (
+				'name'   => 'ecwid-ecommerce-solution-3',
+				'width'  => '165',
+				'height' => '58',
+				'alt'    => __('Ecwid ecommerce solution', 'ecwid-shopping-cart')
+			),
+			'ecwid-free-shopping-cart-3' => array (
+				'name'   => 'ecwid-free-shopping-cart-3',
+				'width'  => '175',
+				'height' => '58',
+				'alt'    => __('Ecwid free shopping cart', 'ecwid-shopping-cart')
+			)
+		);
+	}
+
+	function widget($args, $instance)
+	{
+		extract($args);
+
+		if (!isset($instance['badge_id']) || !array_key_exists($instance['badge_id'], $this->available_badges)) {
+			return;
+		}
+		$badge = $this->available_badges[$instance['badge_id']];
+		$url = sprintf($this->url_template, $badge['name']);
+
+		echo $before_widget;
+
+		echo <<<HTML
+<div>
+	<a target="_blank" rel="nofollow" href="http://www.ecwid.com?source=wporg-badge">
+		<img src="$url" width="$badge[width]" height="$badge[height]" alt="$badge[alt]" />
+	</a>
+</div>
+HTML;
+
+		echo $after_widget;
+	}
+
+	function update($new_instance, $old_instance){
+		$instance = $old_instance;
+		$instance['badge_id'] =
+			array_key_exists($new_instance['badge_id'], $this->available_badges)
+			? $new_instance['badge_id']
+			: '';
+
+		return $instance;
+	}
+
+	function form($instance) {
+		$instance = wp_parse_args( (array) $instance, array('badge_id' => 'ecwid-shopping-cart-widget-5') );
+
+		foreach ($this->available_badges as $id => $widget) {
+			$element_id = "badge-$id";
+			$name = $this->get_field_name('badge_id');
+			$checked = '';
+			if (isset($instance['badge_id']) && $instance['badge_id'] == $id) {
+				$checked = 'checked="checked"';
+			}
+			$url = sprintf($this->url_template, $id);
+			$content = <<<HTML
+				<label class="ecwid-badge">
+					<div class="checkbox">
+						<input name="$name" type="radio" value="$widget[name]"$checked/>
+					</div>
+					<div class="image">
+						<img src="$url" width="$widget[width]" height="$widget[height]" alt="$widget[alt]" />
+					</div>
+				</label>
+HTML;
+			echo $content;
+		}
+	}
+}
 
 class EcwidMinicartWidget extends WP_Widget {
 
@@ -1182,6 +1375,7 @@ function ecwid_sidebar_widgets_init() {
 	register_widget('EcwidSearchWidget');
 	register_widget('EcwidVCategoriesWidget');
 	register_widget('EcwidMinicartMiniViewWidget');
+	register_widget('EcwidBadgeWidget');
 }
 
 add_action('widgets_init', 'ecwid_sidebar_widgets_init');

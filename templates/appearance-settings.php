@@ -6,8 +6,8 @@ function ecwid_embed_svg($name) {
 }
 
 ?>
-
-<form class="wrap pure-form pure-form-aligned ecwid-settings appearance-settings" method="POST" action="options.php">
+<div class="wrap">
+<form class="pure-form pure-form-aligned ecwid-settings appearance-settings" method="POST" action="options.php">
 
 	<h2><?php _e('Ecwid Shopping Cart - Appearance settings', 'ecwid-shopping-cart'); ?></h2>
 
@@ -16,76 +16,99 @@ function ecwid_embed_svg($name) {
 
 	<fieldset>
 
-		<div class="pure-control-group">
-			<label for="ecwid_show_search_box">
-				<?php _e('Display search box above products', 'ecwid-shopping-cart'); ?>
-			</label>
-
-			<input
-				id="ecwid_show_search_box"
-				name="ecwid_show_search_box"
-				type="checkbox"
-				<?php if (get_option('ecwid_show_search_box')): ?>
-				checked="checked"
-			<?php endif; ?>
-			$disabled_str
-			/>
-			<span class="note inline-note">
+		<div class="pure-control-group small-input">
+			<div class="input">
+				<div>
+					<input
+						id="ecwid_show_search_box"
+						name="ecwid_show_search_box"
+						type="checkbox"
+						<?php if (get_option('ecwid_show_search_box')): ?>
+							checked="checked"
+						<?php endif; ?>
+						<?php echo $disabled_str; ?>
+						/>
+				</div>
+			</div>
+			<div class="label">
+				<label for="ecwid_show_search_box">
+					<?php _e('Display search box above products', 'ecwid-shopping-cart'); ?>
+				</label>
+			</div>
+			<div class="note">
 				<?php _e('Or you can add search box to your website\'s toolbar using <a href="widgets.php">WordPress native widgets</a>.', 'ecwid-shopping-cart'); ?>
-			</span>
+			</div>
 		</div>
 
-		<div class="pure-control-group">
-			<label for="ecwid_show_categories">
-				<?php _e('Display horizontal categories above products', 'ecwid-shopping-cart'); ?>
-			</label>
-
-			<input
-				id="ecwid_show_categories"
-				name="ecwid_show_categories"
-				type="checkbox"
-				<?php if (get_option('ecwid_show_categories')): ?>
-					checked="checked"
-				<?php endif; ?>
-				$disabled_str
-				/>
-			<span class="note inline-note">
+		<div class="pure-control-group small-input">
+			<div class="input">
+				<div>
+					<input
+						id="ecwid_show_categories"
+						name="ecwid_show_categories"
+						type="checkbox"
+						<?php if (get_option('ecwid_show_categories')): ?>
+							checked="checked"
+						<?php endif; ?>
+						<?php echo $disabled_str; ?>
+						/>
+				</div>
+			</div>
+			<div class="label">
+				<label for="ecwid_show_categories">
+					<?php _e('Display horizontal categories above products', 'ecwid-shopping-cart'); ?>
+				</label>
+			</div>
+			<div class="note">
 				<?php _e('Or you can add vertical categories to your website\'s toolbar using <a href="widgets.php">WordPress native widgets</a>.', 'ecwid-shopping-cart'); ?>
-			</span>
+			</div>
 		</div>
 
-		<div class="pure-control-group">
-			<label for="ecwid_enable_minicart">
-				<?php _e('Enable minicart attached to horizontal categories', 'ecwid-shopping-cart'); ?>
-			</label>
 
-			<input
-				id="ecwid_enable_minicart"
-				name="ecwid_enable_minicart"
-				type="checkbox"
-				<?php if (get_option('ecwid_enable_minicart')): ?>
-				checked="checked"
-			<?php endif; ?>
-			$disabled_str
-			/>
-			<span class="note inline-note">
+		<div class="pure-control-group small-input">
+			<div class="input">
+				<div>
+					<input
+						id="ecwid_enable_minicart"
+						name="ecwid_enable_minicart"
+						type="checkbox"
+						<?php if (get_option('ecwid_enable_minicart')): ?>
+							checked="checked"
+						<?php endif; ?>
+						<?php echo $disabled_str; ?>
+						/>
+				</div>
+			</div>
+			<div class="label">
+				<label for="ecwid_enable_minicart">
+					<?php _e('Enable minicart attached to horizontal categories', 'ecwid-shopping-cart'); ?>
+				</label>
+			</div>
+			<div class="note">
 				<?php _e("You should disable this option, if you added minicart to your website's&nbsp;sidebar.", 'ecwid-shopping-cart'); ?>
-			</span>
+			</div>
 		</div>
-		
-		<div class="pure-control-group">
-			<label for="ecwid_pb_categoriesperrow">
-				<?php _e('Number of categories per row', 'ecwid-shopping-cart'); ?>
-			</label>
 
-			<input
-				id="ecwid_pb_categoriesperrow"
-				name="ecwid_pb_categoriesperrow"
-				type="text"
-				class="number"
-				value="<?php echo esc_attr(get_option('ecwid_pb_categoriesperrow')); ?>"
-				$disabled_str
-			/>
+		<div class="pure-control-group small-input">
+			<div class="input">
+				<div>
+					<input
+						id="ecwid_pb_categoriesperrow"
+						name="ecwid_pb_categoriesperrow"
+						type="text"
+						class="number"
+						value="<?php echo esc_attr(get_option('ecwid_pb_categoriesperrow')); ?>"
+						<?php echo $disabled_str; ?>
+					/>
+				</div>
+			</div>
+			<div class="label">
+				<label for="ecwid_pb_categoriesperrow">
+					<?php _e('Number of categories per row', 'ecwid-shopping-cart'); ?>
+				</label>
+			</div>
+			<div class="note">
+			</div>
 		</div>
 
 		<hr />
@@ -203,3 +226,5 @@ function ecwid_embed_svg($name) {
 		</div>
 	</fieldset>
 </form>
+
+</div>
