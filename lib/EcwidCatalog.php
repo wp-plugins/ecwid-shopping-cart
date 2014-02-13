@@ -181,11 +181,12 @@ class EcwidCatalog
 		{
 			foreach ($categories as $category) 
 			{
-				$category_url = $this->build_url($category["url"]);
+				$category_url = $this->build_url($this->store_base_url . "#!/~/category/id=" . $category["id"]);
+
 				$category_name = $category["name"];
 				$return .= sprintf(
 					'<div class="ecwid_catalog_category_name"><a href="%s">%s</a></div>' . PHP_EOL,
-					esc_attr($category_url . '&offset=0&sort=nameAsc'),
+					esc_attr($category_url),
 					esc_html($category_name)
 				);
 			}
@@ -195,7 +196,7 @@ class EcwidCatalog
 		{
 			foreach ($products as $product) 
 			{
-				$product_url = $this->store_base_url . "#!/~/product/category=" . $id . "&id=" . $product["id"];
+				$product_url = $this->store_base_url . "#!/~/product/id=" . $product["id"];
 				$this->build_url($product["url"]);
 				$product_name = $product["name"];
 				$product_price = $product["price"] . "&nbsp;" . $profile["currency"];
