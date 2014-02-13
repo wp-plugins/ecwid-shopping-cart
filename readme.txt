@@ -2,8 +2,8 @@
 Contributors: Ecwid Team
 Tags: ecwid, shopping cart, ecommerce, wordpress ecommerce, wp e-commerce, paypal, e-commerce, online store, store, shop, cart, online shop, shopping, digital goods, downloadable products, product catalog, ecomerce, products, facebook, f-commerce
 Requires at least: 2.8
-Tested up to: 3.7
-Stable tag: 2.0
+Tested up to: 3.8
+Stable tag: 2.3
 
 Ecwid is a free full-featured shopping cart that can easily be added to any blog
 and takes less than 5 minutes to set up.
@@ -32,18 +32,18 @@ Links
 
 == Installation ==
 
-**Automatic installation (the easiest way).**
+= Automatic installation (the easiest way) =
 
 1. Go to your WP admin panel → Plugins → Add New
 2. Under Search, type in 'Ecwid', click Search
 3. In the search results find the 'Ecwid Shopping Cart' plugin and click 'Install now' to install it
 4. When plugin is installed click 'Activate Plugin' link
-5. Log in into Ecwid control panel at https://my.ecwid.com and copy your numeric Store ID. Go to 'Settings → Ecwid shopping cart' page in WP admin panel and paste Store ID in the corresponding field.
+5. Log in into Ecwid control panel at https://my.ecwid.com and copy your numeric Store ID. Go to 'Ecwid Store → General' page in WP admin panel and paste Store ID in the corresponding field.
 
-**IMPORTANT**: when the plugin is installed, you will need to activate it on the Plugins page (click 'Activate' link) and configure it on the 'Settings → Ecwid shopping cart' page (at least, you will need to set your store ID there).
+**IMPORTANT**: when the plugin is installed, you will need to activate it on the Plugins page (click 'Activate' link) and configure it on the 'Ecwid Store → General' page (at least, you will need to set your store ID there).
 
 
-**Alternative ways:**
+= Alternative ways =
 
 **Uploading the plugin zip archive in your admin panel**
 
@@ -78,6 +78,38 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 - Knowledge Base: [http://kb.ecwid.com](http://kb.ecwid.com)
 
 == Changelog ==
+= 2.3.1 =
+- Automatic generation of the rel="canonical" links for SEO. Canonical links are aimed to specify the preferred (canonical) URL of the web page for search engines to prevent possible duplicate content issues. Ecwid plugin now generates such links automatically for product and categories pages in your store to provide search crawlers with well-structured content and help them better index your store.
+- Improved compatibility with CloudFlare Rocket Loader. The merchants who use CloudFlare Rocket Loader extensions on their sites might previously experience issues with loading of their Ecwid stores. We've further improved the plugin code to prevent such issues in the future. Now Ecwid plugin should perfectly work with CloudFlare extensions.
+- Several minor fixes and enhancements
+
+= 2.3 =
+- Added compatibility with Google XML Sitemaps plugin. Now you can submit your store items links along with the other site pages to search engines.  To use this feature, please install the "Google XML Sitemaps" plugin (http://wordpress.org/plugins/google-sitemap-generator/), generate a sitemap (it will include your products and categories links) and submit it to the search engines to help them better crawl and categorize your site.
+
+- Improved compatibility with SEO Ultimate plugin. Ecwid plugin always displays your store pages in a proper SEO-friendly format to make the store indexable by search engines. Moreover, we constantly adjust the plugin to make it work fine with popular third party SEO modules. So Ecwid is perfectly compatible with "Wordpress SEO by Yoast", "All in one SEO Pack", "Platinum SEO Pack" and now with "SEO Ultimate" plugin.
+
+- Minor design improvements of the plugin settings pages to make them mobile-friendly for better compatibility with the backend layout of new Wordpress versions. Now you can manage Ecwid plugin settings in your Wordpress administrator panel using your mobile device.
+
+- New "Ecwid badges" widget is available. If you like Ecwid and want to help it grow and become the most popular e-commerce solution, you can now add a fancy 'Powered by Ecwid' badge on your site to show your visitors that you're a proud user of Ecwid. Please find the new widget under 'Appearance → Widgets' section in your Wordpress backend. 
+
+= 2.2.1 =
+- Fixed layout error on General Settings page in Firefox
+
+= 2.2 =
+- Improved compatibility with the new Wordpress version 3.8 which brings great features like brand new responsive theme, revamped admin backend and other improvements. Ecwid plugin is now ready for that, so your store will work perfectly with the new Wordpress version
+- The plugin settings pages are now available in seven languages: English, Italian, Russian, French, German, Spanish, Brazilian Portuguese. Ecwid itself is available in 45 languages, so customers from all over the world can purchase from your store
+- Design improvements of the plugin settings pages including Retina-ready icons
+
+= 2.1 =
+- Our plugin backend is now available in Italian, Russian and English. Thanks to Luciano Del Fico for the great help with the Italian translation.
+
+- Improvements and bug fixes, including
+  - Better SEO for store pages: search engines will now index product options list and category descriptions
+  - Compatibility with WP Minify (Wordpress sites optimization plugin)
+  - Improved compatibility with Yoast WP SEO plugin: Ecwid SEO page titles are shown properly with enabled Yoast's "Force Rewrite Titles" option
+  - Minor text and design tweaks of the plugin settings pages
+
+
 = 2.0 =
 - **New revamped plugin settings**: the new settings layout makes the plugin easy and intuitive for starters, yet powerful and advanced for experienced merchants.
 
