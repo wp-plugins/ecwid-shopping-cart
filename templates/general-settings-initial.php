@@ -1,20 +1,28 @@
-<div class="wrap pure-form ecwid-settings general-settings">
+<div class="wrap">
 
-	<h2><?php _e('Ecwid Shopping Cart - General settings', 'ecwid-shopping-cart'); ?></h2>
-
-	<form method="POST" action="options.php">
+	<form method="POST" action="options.php" class="pure-form ecwid-settings general-settings">
+		<h2><?php _e('Ecwid Shopping Cart - General settings', 'ecwid-shopping-cart'); ?></h2>
 		<?php settings_fields('ecwid_options_page'); ?>
 		<fieldset>
 
 			<input type="hidden" name="settings_section" value="general" />
 
 			<div class="greeting-box">
-				<div class="main-message">
-					<?php _e('Thank you for choosing Ecwid to build your online store.', 'ecwid-shopping-cart'); ?>
+
+				<div class="image-container">
+					<img class="greeting-image" src="<?php echo(esc_attr(ECWID_PLUGIN_URL)); ?>/images/store_inprogress.png" width="142" />
 				</div>
-				<div class="secondary-message">
-					<?php _e('The first step towards opening your online business: <br />Let’s get started and add a store to your WordPress website in <strong>3</strong> simple steps.', 'ecwid-shopping-cart'); ?>
+
+				<div class="messages-container">
+					<div class="main-message">
+
+						<?php _e('Thank you for choosing Ecwid to build your online store.', 'ecwid-shopping-cart'); ?>
+					</div>
+					<div class="secondary-message">
+						<?php _e('The first step towards opening your online business: <br />Let’s get started and add a store to your WordPress website in <strong>3</strong> simple steps.', 'ecwid-shopping-cart'); ?>
+					</div>
 				</div>
+
 			</div>
 			<hr />
 
@@ -33,7 +41,7 @@
 						</a>
 					</div>
 					<div class="note">
-						<?php _e('You will be able to sign up through your exising Google, Facebook or PayPal profiles as well.', 'ecwid-shopping-cart'); ?>
+						<?php _e('You will be able to sign up through your existing Google, Facebook or PayPal profiles as well.', 'ecwid-shopping-cart'); ?>
 					</div>
 				</li>
 				<li>
@@ -55,7 +63,7 @@
 							placeholder="<?php _e('Store ID', 'ecwid-shopping-cart'); ?>"
 							value="<?php if (get_ecwid_store_id() != 1003) echo esc_attr(get_ecwid_store_id()); ?>"
 							/>
-						<button type="submit" class="pure-button pure-button-primary"><?php _e('Save and connect your Ecwid store to the site', 'ecwid-shopping-cart'); ?></button>
+						<button type="submit" class="<?php echo ECWID_MAIN_BUTTON_CLASS; ?>"><?php _e('Save and connect your Ecwid store to the site', 'ecwid-shopping-cart'); ?></button>
 					</div>
 
 				</li>
