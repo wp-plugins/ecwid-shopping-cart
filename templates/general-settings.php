@@ -1,33 +1,38 @@
-<div class="wrap pure-form ecwid-settings general-settings">
-	<h2><?php _e('Ecwid Shopping Cart - General settings', 'ecwid-shopping-cart'); ?></h2>
+<div class="wrap">
 
-
-	<form method="POST" action="options.php" name="settings">
+	<form method="POST" action="options.php" class="pure-form ecwid-settings general-settings" name="settings">
+		<h2><?php _e('Ecwid Shopping Cart - General settings', 'ecwid-shopping-cart'); ?></h2>
 		<?php settings_fields('ecwid_options_page'); ?>
 		<fieldset>
 
 			<input type="hidden" name="settings_section" value="general" />
 
 			<div class="greeting-box complete">
-				<?php if ($_GET['settings-updated']): ?>
+				<div class="image-container">
+					<img class="greeting-image" src="<?php echo(esc_attr(ECWID_PLUGIN_URL)); ?>/images/store_ready.png" width="142" />
+				</div>
 
-				<div class="main-message"><?php _e('Congratulations!', 'ecwid-shopping-cart'); ?></div>
-				<div class="secondary-message"?><?php _e('Your Ecwid store is now connected to your WordPress website.', 'ecwid-shopping-cart'); ?></div>
+				<div class="messages-container">
+					<?php if (array_key_exists('settings-updated', $_GET)): ?>
 
-				<?php else: ?>
+					<div class="main-message"><?php _e('Congratulations!', 'ecwid-shopping-cart'); ?></div>
+					<div class="secondary-message"?><?php _e('Your Ecwid store is now connected to your WordPress website.', 'ecwid-shopping-cart'); ?></div>
 
-				<div class="main-message"><?php _e('Greetings!', 'ecwid-shopping-cart'); ?></div>
-				<div class="secondary-message"?><?php _e('Your Ecwid store is connected to your WordPress website.', 'ecwid-shopping-cart'); ?></div>
-				<?php endif; ?>
+					<?php else: ?>
+
+					<div class="main-message"><?php _e('Greetings!', 'ecwid-shopping-cart'); ?></div>
+					<div class="secondary-message"?><?php _e('Your Ecwid store is connected to your WordPress website.', 'ecwid-shopping-cart'); ?></div>
+					<?php endif; ?>
+				</div>
 			</div>
 			<hr />
 			<div class="section">
 				<div class="left">
 					<span class="main-info">
-						<?php _e('Store ID', 'ecwid-shopping-cart'); ?>: <strong><? echo esc_attr(get_ecwid_store_id()); ?></strong>
+						<?php _e('Store ID', 'ecwid-shopping-cart'); ?>: <strong><?php echo esc_attr(get_ecwid_store_id()); ?></strong>
 					</span>
 				</div>
-				<div class="right"">
+				<div class="right two-buttons">
 					<a class="pure-button" target="_blank" href="https://my.ecwid.com/cp/?source=wporg#t1=&t2=Dashboard">
 						<?php _e('Control panel', 'ecwid-shopping-cart'); ?>
 					</a>
@@ -67,7 +72,7 @@
 							<?php _e('Billing and plans', 'ecwid-shopping-cart'); ?>
 						</a>
 					<?php else: ?>
-						<a class="pure-button pure-button-primary" target="_blank" href="http://www.ecwid.com/plans-and-pricing.html">
+						<a class="<?php echo ECWID_MAIN_BUTTON_CLASS; ?>" target="_blank" href="http://www.ecwid.com/plans-and-pricing.html">
 							<?php _e('Upgrade', 'ecwid-shopping-cart'); ?>
 						</a>
 					<?php endif; ?>
