@@ -78,6 +78,9 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 - Knowledge Base: [http://kb.ecwid.com](http://kb.ecwid.com)
 
 == Changelog ==
+= 2.4.1 =
+- Added compatibility with the new versions of "Google XML Sitemaps" plugin (v4.0 and higher)
+
 = 2.4 =
 - **Ability to add a single product to a page or post on your site using new [ecwid\_product] shortcode.** In addition to embedding a whole product catalog on your Wordpress site, you can also feature a single product on a separate page or blog post of your site and allow your customers to purchase the product right from that page. To embed a product on a page or post, add [ecwid\_product id="12345"] shortcode to the page/post in your Wordpress backend. Do not forget to replace 12345 in this example with the actual product ID.
 

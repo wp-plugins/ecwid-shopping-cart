@@ -5,7 +5,7 @@ Plugin URI: http://www.ecwid.com?source=wporg
 Description: Ecwid is a free full-featured shopping cart. It can be easily integrated with any Wordpress blog and takes less than 5 minutes to set up.
 Text Domain: ecwid-shopping-cart
 Author: Ecwid Team
-Version: 2.4
+Version: 2.4.1
 Author URI: http://www.ecwid.com?source=wporg
 */
 
@@ -23,6 +23,8 @@ if ( ! defined( 'ECWID_PLUGIN_URL' ) ) {
 	define( 'ECWID_PLUGIN_URL', plugin_dir_url( realpath(__FILE__) ) );
 }
 
+add_action('sm_buildmap', 'ecwid_build_sitemap_pages');
+
 if ( is_admin() ){ 
   add_action('admin_init', 'ecwid_settings_api_init');
   add_action('admin_notices', 'ecwid_show_admin_messages');
@@ -35,7 +37,6 @@ if ( is_admin() ){
   add_filter('plugins_loaded', 'ecwid_load_textdomain');
   add_filter('plugin_action_links_ecwid-shopping-cart/ecwid-shopping-cart.php', 'ecwid_plugin_actions');
   add_action('admin_head', 'ecwid_ie8_fonts_inclusion');
-  add_action('sm_buildmap', 'ecwid_build_sitemap_pages');
   add_action('admin_head', 'ecwid_send_stats');
 } else {
   add_shortcode('ecwid_script', 'ecwid_script_shortcode');
@@ -240,8 +241,6 @@ function ecwid_build_sitemap_pages()
 
 function build_sitemap_callback($url, $priority, $frequency)
 {
-	echo $url . '<br />';
-
 	static $generatorObject = null;
 	if (is_null($generatorObject)) {
 		$generatorObject = &GoogleSitemapGenerator::GetInstance(); //Please note the "&" sign!
@@ -595,10 +594,10 @@ function ecwid_content_started($content)
 
 function ecwid_wrap_shortcode_content($content)
 {
-    return "<!-- Ecwid shopping cart plugin v 2.4 -->"
+    return "<!-- Ecwid shopping cart plugin v 2.4.1 -->"
 		   . ecwid_get_scriptjs_code()
 	       . "<div>$content</div>"
-		   . "<!-- END Ecwid Shopping Cart v 2.4 -->";
+		   . "<!-- END Ecwid Shopping Cart v 2.4.1 -->";
 }
 
 function ecwid_get_scriptjs_code($force_lang = null) {
