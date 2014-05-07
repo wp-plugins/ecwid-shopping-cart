@@ -79,14 +79,12 @@ Although Ecwid is packed with high-value features, [Free plan](http://www.ecwid.
 = Alternative ways =
 
 **Uploading the plugin zip archive in Wordpress admin backend**
-
 1. Download Ecwid plugin from this page (click *Download* button)
 1. In your Wordpress admin backend, navigate to *Plugins → Add new*
 1. Click *Upload* link and choose the saved zip file in the appeared dialog window.
 1. Click *Install*
 
 **Uploading plugin folder to Wordpress directory on your server**
-
 1. Download Ecwid plugin from this page (click *Download* button)
 1. Unpack the downloaded zip archive
 1. Upload ecwid-shopping-cart directory from the archive to the `/wp-content/plugins/` directory on your server
