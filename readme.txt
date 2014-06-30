@@ -112,6 +112,9 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 * [Ecwid site](http://www.ecwid.com/?source=wporg-plugin-site "Ecwid Site")
 
 == Changelog ==
+= 2.4.2 =
+- Minor issue is fixed on the plugin's "General settings" page
+
 = 2.4.1 =
 - Added compatibility with the new versions of "Google XML Sitemaps" plugin (v4.0 and higher)
 
