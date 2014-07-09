@@ -2,8 +2,8 @@
 Contributors: ecwid
 Tags: ecwid, shopping cart, ecommerce, wordpress ecommerce, wp e-commerce, paypal, e-commerce, online store, store, shop, cart, online shop, shopping, digital goods, downloadable products, product catalog, ecomerce, products, facebook, f-commerce
 Requires at least: 2.8
-Tested up to: 3.9.1
-Stable tag: 2.4.2
+Tested up to: 3.9
+Stable tag: 2.4.3.1
 
 Ecwid is a free full-featured shopping cart that can easily be added to any blog
 and takes less than 5 minutes to set up.
@@ -112,11 +112,12 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 * [Ecwid site](http://www.ecwid.com/?source=wporg-plugin-site "Ecwid Site")
 
 == Changelog ==
-= 2.4.3 =
+= 2.4.3.1 =
 - **Onboarding for the new plugin users.** Ecwid plugin now displays new helpful messages when you set up your store and configure the setting. The messages guide the new users through the setup process and provide helpful tips and recommendations.
 - **Improvements in the plugin settings pages and messages.** We updated the texts and styles of the messages displayed on the settings pages. They became clearer and more user-friendly.
 - **Minor optimizations for search engines** including tidying up of the product pages 'meta' descriptions tags and fixing potential issues in compatibility with Yoast SEO plugin. This is to ensure better indexation and appearing of your products in the search results.
 - **Several minor fixes and enhancements**
+- **Added in 2.4.3.1:** fixed incompatibility of the plugin v2.4.3 with the servers running PHP 5.2.x
 
 = 2.4.2 =
 - Minor issue is fixed on the plugin's "General settings" page
