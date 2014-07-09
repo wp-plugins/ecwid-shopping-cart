@@ -1,13 +1,14 @@
-<form class="wrap pure-form pure-form-aligned ecwid-settings advanced-settings" method="POST" action="options.php">
+<div class="wrap">
+<form class="pure-form pure-form-aligned ecwid-settings advanced-settings" method="POST" action="options.php">
 
-	<h2><?php _e('Ecwid Shopping Cart - Advanced settings', 'ecwid-shopping-cart'); ?></h2>
+	<h2><?php _e('Ecwid Shopping Cart — Advanced settings', 'ecwid-shopping-cart'); ?></h2>
 
 	<?php settings_fields('ecwid_options_page'); ?>
 	<input type="hidden" name="settings_section" value="advanced" />
 
 	<fieldset>
 
-		<div class="pure-control-group">
+		<div class="pure-control-group bottom-border">
 
 			<?php if (ecwid_is_paid_account()): ?>
 			<label for="ecwid_default_category_id">
@@ -42,7 +43,7 @@
 				/>
 			<?php endif; ?>
 			<div class="note">
-				<?php _e('By default, the storefront shows a list of root categories. You can override this behaviour and show a different category when customers open your store for the first time. It is useful if you have one category only or want to display a specific set of items (e.g. "Featured products") to all new visitors.', 'ecwid-shopping-cart'); ?>
+				<?php _e('By default, the storefront shows a list of root categories. You can override this behavior and show a different category when customers open your store for the first time. This is useful if you only have one category or want to display a specific set of items (e.g. "Featured Products") to new visitors.', 'ecwid-shopping-cart'); ?>
 			</div>
 			<div class="note">
 			<?php if (!ecwid_is_paid_account()): ?>
@@ -59,24 +60,43 @@
 
 		<div class="pure-control-group last">
 			<label for="ecwid_sso_secret_key">
-				<?php _e('Single Sign-on Secret Key', 'ecwid-shopping-cart'); ?>
+				<?php _e('Single Sign-On Secret Key', 'ecwid-shopping-cart'); ?>
 			</label>
 
 			<input
 				id="ecwid_sso_secret_key"
 				type="text"
 				name="ecwid_sso_secret_key"
-				placeholder="<?php _e('Single Sign-on Secret Key', 'ecwid-shopping-cart'); ?>"
+				placeholder="<?php _e('Single Sign-On Secret Key', 'ecwid-shopping-cart'); ?>"
 				value="<?php echo esc_attr(get_option('ecwid_sso_secret_key')); ?>"
 				/>
 
 			<div class="note">
-				<?php _e("This optional feature allows enabling Single Sign-On : when customers are logged in to your site, they are automatically logged in to your Ecwid store as well, even if they didn't have an account in the store before. It makes sense to enable this feature, if your visitors actually create accounts in your WordPress website.", 'ecwid-shopping-cart'); ?>
+				<?php _e('Single Sign-On Secret Key is an option that allows your customers access to your WordPress site as well as the Ecwid shopping cart. When customers log in to your site, they will automatically be logged in to your Ecwid store as well. It makes sense to enable this feature if your visitors actually create accounts in your WordPress website.', 'ecwid-shopping-cart'); ?>
 			</div>
 			<div class="note grayed-links">
-				<?php _e('In order to enable this feature you should submit a secret key. You will find this key in your Ecwid control panel,  at "System Settings > API > Single Sign-on API" page . This feature is available for <a href="http://www.ecwid.com/compare-plans.html" target="_blank">paid users</a> only.', 'ecwid-shopping-cart'); ?>
+				<?php _e('In order to enable this feature, opt to use a secret key. You will find this key in your Ecwid control panel, at "System Settings > API > Single Sign-On API" page. This feature is available for <a href="http://www.ecwid.com/compare-plans.html" target="_blank">paid users</a> only.', 'ecwid-shopping-cart'); ?>
 			</div>
 		</div>
+
+		<?php if (Ecwid_Theme_Manager::get_instance()->has_advanced_layout()): ?>
+		<hr />
+
+		<div class="pure-control-group last">
+			<label for="ecwid_enable_advanced_theme_layout">
+				<?php _e('Improve layout for your theme', 'ecwid-shopping-cart'); ?>
+			</label>
+
+			<select name="ecwid_enable_advanced_theme_layout">
+				<option value="Y"<?php if (get_option('ecwid_enable_advanced_theme_layout') == 'Y'): ?> selected="selected"<?php endif; ?>><?php _e('Yes'); ?></option>
+				<option value="N"<?php if (get_option('ecwid_enable_advanced_theme_layout') != 'Y'): ?> selected="selected"<?php endif; ?>><?php _e('No'); ?></option>
+			</select>
+
+			<div class="note">
+				<?php _e('Ecwid Shopping Cart plugin supports and advanced layout scheme for your "%s" theme. It can be enabled using this option.', 'ecwid-shopping-cart'); ?>
+			</div>
+		</div>
+		<?php endif; ?>
 
 	</fieldset>
 
@@ -84,9 +104,10 @@
 		<hr />
 
 		<div class="pure-control-group">
-			<button type="submit" class="pure-button pure-button-primary">
+			<button type="submit" class="<?php echo ECWID_MAIN_BUTTON_CLASS; ?>">
 				<?php _e('Save changes', 'ecwid-shopping-cart'); ?>
 			</button>
 		</div>
 	</fieldset>
 </form>
+</div>
