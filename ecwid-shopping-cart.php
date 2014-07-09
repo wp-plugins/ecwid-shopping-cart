@@ -12,8 +12,7 @@ Author URI: http://www.ecwid.com?source=wporg
 register_activation_hook( __FILE__, 'ecwid_store_activate' );
 register_deactivation_hook( __FILE__, 'ecwid_store_deactivate' );
 
-$s = (get_current_theme() == 'Twenty Fourteen' && in_array($_SERVER['SERVER_NAME'], array('localhost', 'lamp.ecwid.com'))) ? "apptest-5092.ecwid.com" : 'app.ecwid.com';
-define("APP_ECWID_COM", $s);
+define("APP_ECWID_COM", 'app.ecwid.com');
 define("ECWID_DEMO_STORE_ID", 1003);
 
 
