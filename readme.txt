@@ -112,12 +112,13 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 * [Ecwid site](http://www.ecwid.com/?source=wporg-plugin-site "Ecwid Site")
 
 == Changelog ==
-= 2.4.3.1 =
+= 2.4.3.2 =
 - **Onboarding for the new plugin users.** Ecwid plugin now displays new helpful messages when you set up your store and configure the setting. The messages guide the new users through the setup process and provide helpful tips and recommendations.
 - **Improvements in the plugin settings pages and messages.** We updated the texts and styles of the messages displayed on the settings pages. They became clearer and more user-friendly.
 - **Minor optimizations for search engines** including tidying up of the product pages 'meta' descriptions tags and fixing potential issues in compatibility with Yoast SEO plugin. This is to ensure better indexation and appearing of your products in the search results.
 - **Several minor fixes and enhancements**
 - **Added in 2.4.3.1:** fixed incompatibility of the plugin v2.4.3 with the servers running PHP 5.2.x
+- **Added in 2.4.3.2:** additional fix for the outdated PHP versions (5.2.x)
 
 = 2.4.2 =
 - Minor issue is fixed on the plugin's "General settings" page
