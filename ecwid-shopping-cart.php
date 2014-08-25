@@ -5,7 +5,7 @@ Plugin URI: http://www.ecwid.com?source=wporg
 Description: Ecwid is a free full-featured shopping cart. It can be easily integrated with any Wordpress blog and takes less than 5 minutes to set up.
 Text Domain: ecwid-shopping-cart
 Author: Ecwid Team
-Version: 2.4.3.2
+Version: 2.5
 Author URI: http://www.ecwid.com?source=wporg
 */
 
@@ -28,6 +28,9 @@ if ( ! defined( 'ECWID_PLUGIN_URL' ) ) {
 // Older versions of Google XML Sitemaps plugin generate it in admin, newer in site area, so the hook should be assigned in both of them
 add_action('sm_buildmap', 'ecwid_build_sitemap_pages');
 
+// Needs to be in both front-end and back-end to allow admin zone recognize the shortcode
+add_shortcode('ecwid_productbrowser', 'ecwid_productbrowser_shortcode');
+
 if ( is_admin() ){ 
   add_action('admin_init', 'ecwid_settings_api_init');
   add_action('admin_notices', 'ecwid_show_admin_messages');
@@ -42,17 +45,17 @@ if ( is_admin() ){
   add_filter('plugin_action_links_ecwid-shopping-cart/ecwid-shopping-cart.php', 'ecwid_plugin_actions');
   add_action('admin_head', 'ecwid_ie8_fonts_inclusion');
   add_action('admin_head', 'ecwid_send_stats');
+  add_action('save_post', 'ecwid_save_post');
 } else {
   add_shortcode('ecwid_script', 'ecwid_script_shortcode');
   add_shortcode('ecwid_minicart', 'ecwid_minicart_shortcode');
   add_shortcode('ecwid_searchbox', 'ecwid_searchbox_shortcode');
   add_shortcode('ecwid_categories', 'ecwid_categories_shortcode');
-  add_shortcode('ecwid_productbrowser', 'ecwid_productbrowser_shortcode');
   add_shortcode('ecwid_product', 'ecwid_product_shortcode');
   add_action('init', 'ecwid_backward_compatibility');
   add_action('send_headers', 'ecwid_503_on_store_closed');
   add_action('template_redirect', 'ecwid_seo_compatibility_template_redirect');
-  add_action('template_redirect', 'ecwid_apply_theme_adjustments');
+  add_action('template_redirect', 'ecwid_apply_theme');
   add_action('template_redirect', 'ecwid_404_on_broken_escaped_fragment');
   add_action('wp_enqueue_scripts', 'ecwid_add_frontend_styles');
   add_action('wp', 'ecwid_seo_ultimate_compatibility', 0);
@@ -73,7 +76,7 @@ add_action('admin_bar_menu', 'add_ecwid_admin_bar_node', 1000);
 
 $ecwid_script_rendered = false; // controls single script.js on page
 
-require_once plugin_dir_path(__FILE__) . '/lib/class-ecwid-theme-manager.php';
+require_once plugin_dir_path(__FILE__) . '/lib/themes.php';
 require_once plugin_dir_path(__FILE__) . '/lib/class-ecwid-message-manager.php';
 
 $version = get_bloginfo('version');
@@ -133,12 +136,6 @@ if (is_admin()) {
 	}
 
 	define('ECWID_MAIN_BUTTON_CLASS', $main_button_class);
-}
-
-function ecwid_apply_theme_adjustments()
-{
-	$ecwid_theme_manager = Ecwid_Theme_Manager::get_instance();
-	$ecwid_theme_manager->apply_adjustments();
 }
 
 function ecwid_body_class($classes)
@@ -239,15 +236,17 @@ function ecwid_backward_compatibility() {
 
 function ecwid_build_sitemap_pages()
 {
-	if (!ecwid_is_paid_account() || !ecwid_store_page_available()) return;
+	if (!ecwid_is_paid_account() || !ecwid_is_store_page_available()) return;
 
-	$page_url = ecwid_get_store_page_url();
+	$page_id = ecwid_get_current_store_page_id();
 
-	include ECWID_PLUGIN_DIR . '/lib/EcwidSitemapBuilder.php';
+	if (get_post_status($page_id) == 'publish') {
+		include ECWID_PLUGIN_DIR . '/lib/EcwidSitemapBuilder.php';
 
-	$sitemap = new EcwidSitemapBuilder($page_url, 'build_sitemap_callback', ecwid_new_product_api());
+		$sitemap = new EcwidSitemapBuilder(ecwid_get_store_page_url(), 'build_sitemap_callback', ecwid_new_product_api());
 
-	$sitemap->generate();
+		$sitemap->generate();
+	}
 }
 
 function build_sitemap_callback($url, $priority, $frequency)
@@ -391,7 +390,7 @@ function add_ecwid_admin_bar_node() {
             "id" => "ecwid-go-to-page",
             "title" => __("Visit storefront", 'ecwid-shopping-cart'),
             "parent" => "ecwid-main",
-            'href' =>  get_page_link(get_option("ecwid_store_page_id"))
+            'href' => ecwid_get_store_page_url()
         )
     );
     $wp_admin_bar->add_menu(array(
@@ -417,35 +416,25 @@ function add_ecwid_admin_bar_node() {
     );
 }
 
-function ecwid_page_has_productbrowser()
+function ecwid_page_has_productbrowser($post_id = null)
 {
-    static $result = null;
+    static $results = null;
 
-    if (is_null($result)) {
-        $post_content = get_post(get_the_ID())->post_content;
-        $result = has_shortcode($post_content, 'ecwid_productbrowser');
-    }
-
-	if (!$result) {
-		$theme = Ecwid_Theme_Manager::get_instance();
-		if ($theme->get_theme_name() == 'Bretheon') {
-			$meta = get_post_meta(get_the_ID(), 'mfn-page-items');
-			if (is_array($meta)) {
-				$meta = base64_decode($meta[0]);
-
-				// not exactly the intended usage, but quite simple and still works
-				// $meta is a serialized array that has the actual content
-				// a right way is to walk through the structure and run has_shortcode against all fields
-				$result = has_shortcode($meta, 'ecwid_productbrowser');
-			}
-		}
+	if (is_null($post_id)) {
+		$post_id = get_the_ID();
 	}
 
-    return $result;
+    if (is_null($results[$post_id])) {
+        $post_content = get_post($post_id)->post_content;
+        $results[$post_id] = has_shortcode($post_content, 'ecwid_productbrowser');
+
+		$results[$post_id] = apply_filters( 'ecwid_page_has_productbrowser', $results[$post_id] );
+	}
+
+	return $results[$post_id];
 }
 
 function ecwid_ajax_crawling_fragment() {
-    $ecwid_page_id = get_option("ecwid_store_page_id");
     if (ecwid_is_api_enabled() && !isset($_GET['_escaped_fragment_']) && ecwid_page_has_productbrowser())
         echo '<meta name="fragment" content="!">' . PHP_EOL; 
 }
@@ -456,7 +445,7 @@ function ecwid_meta() {
     echo '<link rel="dns-prefetch" href="//images.ecwid.com/">' . PHP_EOL;
     echo '<link rel="dns-prefetch" href="//app.ecwid.com/">' . PHP_EOL;
 
-    if (!ecwid_page_has_productbrowser()) {
+    if (!ecwid_page_has_productbrowser() && ecwid_is_store_page_available()) {
         $page_url = ecwid_get_store_page_url();
         echo '<link rel="prefetch" href="' . $page_url . '" />' . PHP_EOL;
         echo '<link rel="prerender" href="' . $page_url . '" />' . PHP_EOL;
@@ -630,10 +619,10 @@ function ecwid_content_started($content)
 
 function ecwid_wrap_shortcode_content($content, $name)
 {
-    return "<!-- Ecwid shopping cart plugin v 2.4.3.2 -->"
+    return "<!-- Ecwid shopping cart plugin v 2.5 -->"
 		   . ecwid_get_scriptjs_code()
 	       . "<div class=\"ecwid-shopping-cart-$name\">$content</div>"
-		   . "<!-- END Ecwid Shopping Cart v 2.4.3.2 -->";
+		   . "<!-- END Ecwid Shopping Cart v 2.5 -->";
 }
 
 function ecwid_get_scriptjs_code($force_lang = null) {
@@ -741,7 +730,7 @@ function ecwid_product_shortcode($shortcode_attributes) {
 
 	if (is_null($id) || !is_numeric($id) || $id <= 0) return;
 
-	if ($attributes['link'] == 'yes' && !ecwid_store_page_available()) {
+	if ($attributes['link'] == 'yes' && !ecwid_is_store_page_available()) {
 		$attributes['link'] = 'no';
 	}
 
@@ -768,7 +757,7 @@ function ecwid_product_shortcode($shortcode_attributes) {
 	if (is_array($items) && count($items) > 0) foreach ($items as $item) {
 		if (array_key_exists($item, $display_items)) {
 			if ($attributes['link'] == 'yes' && in_array($item, array('title', 'picture'))) {
-				$product_link = ecwid_get_product_url($id);
+				$product_link = ecwid_get_store_page_url() . '#!/~/product/id=' . $id;
 				$result .= '<a href="' . esc_url($product_link) . '">' . $display_items[$item] . '</a>';
 			} else {
 				$result .= $display_items[$item];
@@ -903,24 +892,16 @@ EOT;
     return ecwid_wrap_shortcode_content($s, 'product-browser');
 }
 
-function ecwid_store_page_available()
-{
-	static $available = null;
-
-	if (is_null($available)) {
-		$available = 'publish' == get_post_status(get_option('ecwid_store_page_id'));
-	}
-	return $available;
-
-}
 
 function ecwid_store_activate() {
 	$my_post = array();
 	$content = <<<EOT
 <!-- Ecwid code. Please do not remove this line  otherwise your Ecwid shopping cart will not work properly. --> [ecwid_minicart] [ecwid_searchbox] [ecwid_categories] [ecwid_productbrowser] <!-- Ecwid code end -->
 EOT;
-  	add_option("ecwid_store_page_id", '', '', 'yes');	
-  	add_option("ecwid_store_id", ECWID_DEMO_STORE_ID, '', 'yes');
+  	add_option("ecwid_store_page_id", '', '', 'yes');
+	add_option("ecwid_store_page_id_auto", '', '', 'yes');
+
+	add_option("ecwid_store_id", ECWID_DEMO_STORE_ID, '', 'yes');
     
     add_option("ecwid_enable_minicart", 'Y', '', 'yes');
     add_option("ecwid_show_categories", '', '', 'yes');
@@ -948,7 +929,8 @@ EOT;
 
 	add_option("ecwid_installation_date", time());
 
-	add_option("ecwid_enable_advanced_theme_layout", get_option('ecwid_store_id') == ECWID_DEMO_STORE_ID ? 'Y' : 'N', '', 'yes');
+	// Does not affect updates, automatically turned on for new users only
+	add_option("ecwid_advanced_theme_layout", get_option('ecwid_store_id') == ECWID_DEMO_STORE_ID ? 'N' : 'Y', 'yes');
 
     $id = get_option("ecwid_store_page_id");	
 	$_tmp_page = null;
@@ -968,15 +950,10 @@ EOT;
 		$my_post['post_author'] = 1;
 		$my_post['post_type'] = 'page';
 		$my_post['comment_status'] = 'closed';
-		$id =  wp_insert_post( $my_post );
+		$id = wp_insert_post( $my_post );
 		update_option('ecwid_store_page_id', $id);
 
-		/*
-		// TODO: rework theme management
-		if (Ecwid_Theme_Manager::get_instance()->get_theme_name() == 'Responsive') {
-			update_post_meta($id, '_wp_page_template', 'full-width-page.php');
-		}
-		*/
+		do_action('ecwid_store_page_created', $id);
 	}
 
 	Ecwid_Message_Manager::enable_message('on_activate');
@@ -1145,9 +1122,6 @@ function ecwid_general_settings_do_page() {
 }
 
 function ecwid_advanced_settings_do_page() {
-	wp_register_script('ecwid-advanced-js', plugins_url('ecwid-shopping-cart/js/advanced.js'), array(), '', '');
-	wp_enqueue_script('ecwid-advanced-js');
-
 	$categories = false;
 	if (ecwid_is_paid_account()) {
 		$api = ecwid_new_product_api();
@@ -1229,15 +1203,70 @@ function ecwid_add_dashboard_widgets() {
   }
 }
 
+function ecwid_save_post($post_id)
+{
+	// If primary or auto store page gets updated
+	if ($post_id == get_option('ecwid_store_page_id') || $post_id == get_option('ecwid_store_page_id_auto')) {
+		$new_status = get_post_status($post_id);
+
+		// and the update either disables the page or removes product browser
+		if (!in_array($new_status, array('publish', 'private')) || !ecwid_page_has_productbrowser($post_id)) {
+
+			// then look for another enabled page that has a product browser in it
+			$pages = get_pages(array('post_status' => 'publish,private'));
+
+			foreach ($pages as $page) {
+				if (ecwid_page_has_productbrowser($page->ID)) {
+					update_option('ecwid_store_page_id_auto', $page->ID);
+					return;
+				}
+			}
+		}
+	}
+
+	// if there is no current store page and this new page has a product browser
+	if (ecwid_page_has_productbrowser($post_id) && !ecwid_get_current_store_page_id()) {
+		// then this page becomes a new store page
+		update_option('ecwid_store_page_id_auto', $post_id);
+	}
+}
+
+function ecwid_get_current_store_page_id()
+{
+	static $page_id = null;
+
+	if (is_null($page_id)) {
+		$page_id = false;
+		foreach(array('ecwid_store_page_id', 'ecwid_store_page_id_auto') as $option) {
+			$id = get_option($option);
+			if ($id) {
+				$status = get_post_status($id);
+
+				if ($status == 'publish' || $status == 'private') {
+					$page_id = $id;
+					break;
+				}
+			}
+		}
+	}
+
+	return $page_id;
+}
+
 function ecwid_get_store_page_url()
 {
 	static $link = null;
 
 	if (is_null($link)) {
-		$link = get_page_link(get_option('ecwid_store_page_id'));
+		$link = get_page_link(ecwid_get_current_store_page_id());
 	}
 
 	return $link;
+}
+
+function ecwid_is_store_page_available()
+{
+	return ecwid_get_current_store_page_id() != false;
 }
 
 function ecwid_get_product_url($product)
@@ -1254,13 +1283,26 @@ function ecwid_get_entity_url($entity, $type) {
 
 	$link = ecwid_get_store_page_url();
 
-	if (is_int($entity)) {
+	if (is_numeric($entity)) {
 		return $link . '#!/' . $type . '/' . $entity;
 	} elseif (is_array($entity) && isset($entity['url'])) {
 		$link .= substr($entity['url'], strpos($entity['url'], '#'));
 	}
 
 	return $link;
+
+}
+
+function ecwid_get_product_browser_url_script()
+{
+	$str = '';
+	if (ecwid_is_store_page_available()) {
+		$url = ecwid_get_store_page_url();
+
+		$str = '<script type="text/javascript">var ecwid_ProductBrowserURL = "' . esc_js($url) . '";</script>';
+	}
+
+	return $str;
 
 }
 
@@ -1414,17 +1456,12 @@ class EcwidMinicartWidget extends WP_Widget {
             echo $before_title . $title . $after_title;
 
         echo '<div>';
-        echo ecwid_get_scriptjs_code();
 
-        $ecwid_page_id = get_option("ecwid_store_page_id");
-        $page_url = get_page_link($ecwid_page_id);
-        $_tmp_page = get_page($ecwid_page_id);
-        if (!empty($page_url) && $_tmp_page != null)
-            echo "<script type=\"text/javascript\">var ecwid_ProductBrowserURL = \"$page_url\";</script>";
-        echo <<<EOT
-          <script type="text/javascript"> xMinicart("style="); </script>
-          </div>
-EOT;
+		echo ecwid_get_scriptjs_code();
+		echo ecwid_get_product_browser_url_script();
+        echo '<script type="text/javascript"> xMinicart("style="); </script>';
+
+		echo '</div>';
 
         echo $after_widget;
     }
@@ -1462,18 +1499,14 @@ class EcwidMinicartMiniViewWidget extends WP_Widget {
         if ( $title )
             echo $before_title . $title . $after_title;
 
-        echo '<div>';
-        echo ecwid_get_scriptjs_code();
 
-        $ecwid_page_id = get_option("ecwid_store_page_id");
-        $page_url = ecwid_get_store_page_url();
-        $_tmp_page = get_page($ecwid_page_id);
-        if (!empty($page_url) && $_tmp_page != null)
-            echo "<script type=\"text/javascript\">var ecwid_ProductBrowserURL = \"$page_url\";</script>";
-        echo <<<EOT
-          <script type="text/javascript"> xMinicart("style=left:10px","layout=Mini"); </script>
-          </div>
-EOT;
+		echo '<div>';
+
+		echo ecwid_get_scriptjs_code();
+		echo ecwid_get_product_browser_url_script();
+		echo '<script type="text/javascript"> xMinicart("style=left:10px","layout=Mini"); </script>';
+
+		echo '</div>';
 
         echo $after_widget;
     }
@@ -1504,29 +1537,25 @@ class EcwidSearchWidget extends WP_Widget {
     }
 
     function widget($args, $instance) {
-      extract($args);
-      $title = apply_filters('widget_title', empty($instance['title']) ? '&nbsp;' : $instance['title']);
+		extract($args);
+		$title = apply_filters('widget_title', empty($instance['title']) ? '&nbsp;' : $instance['title']);
 
-      echo $before_widget;
+		echo $before_widget;
 
-      if ( $title )
-      echo $before_title . $title . $after_title;
+		if ( $title )
+		echo $before_title . $title . $after_title;
 
-      echo '<div>';
-      echo ecwid_get_scriptjs_code();
+		echo '<div>';
 
-	$ecwid_page_id = get_option("ecwid_store_page_id");
-        $page_url = get_page_link($ecwid_page_id);
-                $_tmp_page = get_page($ecwid_page_id);
-                if (!empty($page_url) && $_tmp_page != null)
-		echo "<script type=\"text/javascript\">var ecwid_ProductBrowserURL = \"$page_url\";</script>";
-      echo <<<EOT
-	<script type="text/javascript"> xSearchPanel("style="); </script>	      
-	</div>
-EOT;
+		echo ecwid_get_scriptjs_code();
+		echo ecwid_get_product_browser_url_script();
+		echo '<script type="text/javascript"> xSearchPanel("style="); </script>';
+
+		echo '</div>';
+
       
-echo $after_widget;
-  }
+		echo $after_widget;
+    }
 
     function update($new_instance, $old_instance){
       $instance = $old_instance;
@@ -1553,27 +1582,23 @@ class EcwidVCategoriesWidget extends WP_Widget {
     }
 
     function widget($args, $instance) {
-      extract($args);
-      $title = apply_filters('widget_title', empty($instance['title']) ? '&nbsp;' : $instance['title']);
+		extract($args);
+		$title = apply_filters('widget_title', empty($instance['title']) ? '&nbsp;' : $instance['title']);
 
-      echo $before_widget;
+		echo $before_widget;
 
-      if ( $title )
-      echo $before_title . $title . $after_title;
+		if ( $title )
+		echo $before_title . $title . $after_title;
 
-      echo '<div>';
-      echo ecwid_get_scriptjs_code();
-	$ecwid_page_id = get_option("ecwid_store_page_id");
-        $page_url = get_page_link($ecwid_page_id);
-                $_tmp_page = get_page($ecwid_page_id);
-                if (!empty($page_url) && $_tmp_page != null)
-		echo "<script type=\"text/javascript\">var ecwid_ProductBrowserURL = \"$page_url\";</script>";
-      echo <<<EOT
-	<script type="text/javascript"> xVCategories("style="); </script>
-	      </div>
-EOT;
-      
-echo $after_widget;
+		echo '<div>';
+
+		echo ecwid_get_scriptjs_code();
+		echo ecwid_get_product_browser_url_script();
+		echo '<script type="text/javascript"> xVCategories("style="); </script>';
+
+		echo '</div>';
+
+		echo $after_widget;
   }
 
     function update($new_instance, $old_instance){
@@ -1615,7 +1640,7 @@ function ecwid_send_stats()
 	}
 
 	$link = '';
-	if (ecwid_store_page_available()) {
+	if (ecwid_is_store_page_available()) {
 		$link = ecwid_get_store_page_url();
 	} else {
 		$link = get_bloginfo('url');
@@ -1633,7 +1658,7 @@ function ecwid_gather_stats()
 	$stats = array();
 
 	$stats['version'] = get_bloginfo('version');
-	$stats['theme'] = Ecwid_Theme_Manager::get_instance()->get_theme_name();
+	$stats['theme'] = ecwid_get_theme_name();
 
 	include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 
