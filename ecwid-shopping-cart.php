@@ -954,6 +954,10 @@ EOT;
 		update_option('ecwid_store_page_id', $id);
 
 		do_action('ecwid_store_page_created', $id);
+
+                if (ecwid_get_theme_name() == 'Responsive') {
+                        update_post_meta($id, '_wp_page_template', 'full-width-page.php');
+                }
 	}
 
 	Ecwid_Message_Manager::enable_message('on_activate');
