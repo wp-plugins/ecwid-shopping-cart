@@ -930,7 +930,7 @@ EOT;
 	add_option("ecwid_installation_date", time());
 
 	// Does not affect updates, automatically turned on for new users only
-	add_option("ecwid_advanced_theme_layout", get_option('ecwid_store_id') == ECWID_DEMO_STORE_ID ? 'N' : 'Y', 'yes');
+	add_option("ecwid_advanced_theme_layout", get_option('ecwid_store_id') == ECWID_DEMO_STORE_ID ? 'Y' : 'N', 'yes');
 
     $id = get_option("ecwid_store_page_id");	
 	$_tmp_page = null;
