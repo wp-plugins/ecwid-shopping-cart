@@ -46,6 +46,7 @@ if ( is_admin() ){
   add_action('admin_head', 'ecwid_ie8_fonts_inclusion');
   add_action('admin_head', 'ecwid_send_stats');
   add_action('save_post', 'ecwid_save_post');
+  add_action('init', 'ecwid_apply_theme');
 } else {
   add_shortcode('ecwid_script', 'ecwid_script_shortcode');
   add_shortcode('ecwid_minicart', 'ecwid_minicart_shortcode');
@@ -55,8 +56,8 @@ if ( is_admin() ){
   add_action('init', 'ecwid_backward_compatibility');
   add_action('send_headers', 'ecwid_503_on_store_closed');
   add_action('template_redirect', 'ecwid_seo_compatibility_template_redirect');
-  add_action('template_redirect', 'ecwid_apply_theme');
   add_action('template_redirect', 'ecwid_404_on_broken_escaped_fragment');
+  add_action('template_redirect', 'ecwid_apply_theme');
   add_action('wp_enqueue_scripts', 'ecwid_add_frontend_styles');
   add_action('wp', 'ecwid_seo_ultimate_compatibility', 0);
   add_action('wp_title', 'ecwid_seo_compatibility_init', 0);
@@ -496,7 +497,7 @@ function ecwid_meta_description() {
     $description = strip_tags($description);
     $description = html_entity_decode($description, ENT_NOQUOTES, 'UTF-8');
 
-	$description = preg_replace('![\p{Z}\s]{2,}!u', ' ', $description);
+	$description = preg_replace('![\p{Z}\s]{1,}!u', ' ', $description);
 	$description = trim($description, " \t\xA0\n\r"); // Space, tab, non-breaking space, newline, carriage return
 	$description = mb_substr($description, 0, 160);
 	$description = htmlspecialchars($description, ENT_COMPAT, 'UTF-8');
@@ -953,9 +954,10 @@ EOT;
 		$id = wp_insert_post( $my_post );
 		update_option('ecwid_store_page_id', $id);
 
-                if (ecwid_get_theme_name() == 'Responsive') {
-                        update_post_meta($id, '_wp_page_template', 'full-width-page.php');
-                }
+		if (ecwid_get_theme_name() == 'Responsive') {
+			update_post_meta($id, '_wp_page_template', 'full-width-page.php');
+			update_option("ecwid_show_search_box", 'Y');
+		}
 	}
 
 	Ecwid_Message_Manager::enable_message('on_activate');
