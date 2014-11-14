@@ -1,11 +1,3 @@
-<?php
-function ecwid_embed_svg($name) {
-	$code = file_get_contents(ECWID_PLUGIN_DIR . '/images/' . $name . '.svg');
-
-	echo $code;
-}
-
-?>
 <div class="wrap">
 <form class="pure-form pure-form-aligned ecwid-settings appearance-settings" method="POST" action="options.php">
 
@@ -36,7 +28,7 @@ function ecwid_embed_svg($name) {
 				</label>
 			</div>
 			<div class="note">
-				<?php echo sprintf(__('Or you can add search box to your website\'s toolbar using <a href="%s">WordPress native widgets</a>', 'ecwid-shopping-cart'), 'widgets.php?from-ecwid-appearance'); ?>
+				<?php echo sprintf(__('Or you can add search box to your website\'s toolbar using <a href="%s">WordPress native widgets</a>', 'ecwid-shopping-cart'), 'widgets.php?from-ecwid=appearance'); ?>
 			</div>
 		</div>
 
