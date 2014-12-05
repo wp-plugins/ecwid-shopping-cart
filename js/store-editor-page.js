@@ -221,7 +221,9 @@ jQuery(document).ready(function() {
 			$('#content').val(
 				$('#content').val().replace(existingShortcode.content, shortcode.shortcode.string())
 			);
-			$(tinymce.activeEditor.getBody()).find('.ecwid-store-editor').attr('data-ecwid-shortcode', shortcode.shortcode.string());
+			if (tinyMCE.activeEditor) {
+				$(tinymce.activeEditor.getBody()).find('.ecwid-store-editor').attr('data-ecwid-shortcode', shortcode.shortcode.string());
+			}
 		} else {
 
 			if (tinymce.activeEditor && !tinymce.activeEditor.isHidden()) {
@@ -323,8 +325,10 @@ ecwid_open_store_popup = function() {
 	updatePreview();
 
 
-	tinyMCE.activeEditor.execCommand('SelectAll');
-	tinyMCE.activeEditor.selection.collapse();
+	if (tinyMCE.activeEditor) {
+		tinyMCE.activeEditor.execCommand('SelectAll');
+		tinyMCE.activeEditor.selection.collapse();
+	}
 
 	return false;
 };
