@@ -1791,8 +1791,8 @@ class EcwidVCategoriesWidget extends WP_Widget {
 class EcwidStoreLinkWidget extends WP_Widget {
 
 	function EcwidStoreLinkWidget() {
-		$widget_ops = array('classname' => 'widget_ecwid_store_link', 'description' => __('Store link', 'ecwid-shopping-cart'));
-		$this->WP_Widget('ecwidstorelink', __('Ecwid Store Link', 'ecwid-shopping-cart'), $widget_ops);
+		$widget_ops = array('classname' => 'widget_ecwid_store_link', 'description' => __('A link to your store page', 'ecwid-shopping-cart'));
+		$this->WP_Widget('ecwidstorelink', __('Ecwid Store Page Link', 'ecwid-shopping-cart'), $widget_ops);
 	}
 
 	function widget($args, $instance) {
@@ -1815,15 +1815,14 @@ class EcwidStoreLinkWidget extends WP_Widget {
 	}
 
 	function form($instance){
-		$instance = wp_parse_args( (array) $instance, array( 'label' => 'Store' ) );
+		$instance = wp_parse_args( (array) $instance, array( 'label' => __('Shop', 'ecwid-shopping-cart') ) );
 
 		$label = htmlspecialchars($instance['label']);
 
-		echo '<p><label for="' . $this->get_field_name('label') . '">' . __('Label:') . ' <input style="width:100%;" id="' . $this->get_field_id('label') . '" name="' . $this->get_field_name('label') . '" type="text" value="' . $label . '" /></label></p>';
+		echo '<p><label for="' . $this->get_field_name('label') . '">' . __('Text') . ': <input style="width:100%;" id="' . $this->get_field_id('label') . '" name="' . $this->get_field_name('label') . '" type="text" value="' . $label . '" /></label></p>';
 	}
 
 }
-
 
 function ecwid_send_stats()
 {
@@ -1917,7 +1916,8 @@ function ecwid_gather_usage_stats()
 		'google_xml_sitemaps_used',
 		'ecwid_product_advisor_used',
 		'ecwid_single_product_used',
-		'ecwid_store_shortcode_used'
+		'ecwid_store_shortcode_used',
+		'store_link_widget'
 	);
 
 	$usage_stats = array();
@@ -1936,6 +1936,7 @@ function ecwid_gather_usage_stats()
 	$usage_stats['ecwid_product_advisor_used'] = (bool) is_plugin_active('ecwid-useful-tools/ecwid-product-advisor.php');
 	$usage_stats['ecwid_single_product_used'] = (bool) (get_option('ecwid_single_product_used') + 60*60*24*14 > time());
 	$usage_stats['ecwid_store_shortcode_used'] = (bool) (get_option('ecwid_store_shortcode_used') + 60*60*24*14 > time());
+	$usage_stats['store_link_widget'] = (bool) is_active_widget(false, false, 'ecwidstorelink');
 
 	return $usage_stats;
 }
