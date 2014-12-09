@@ -113,7 +113,7 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 = 2.7.2 =
 - **A new sidebar widget: Ecwid Store Page Link.** The widget adds your store page link to the site's sidebar. You may want to use it with blog-focused WordPress themes that don't have a navigation menu, e.g. the upcoming "Twenty Fifteen" theme. Also, you can consider adding the widget to your sidebar to make your store page more visible to your visitors. 
 - **Wordpress 4.1 and Twenty Fifteen theme compatibility.** The new WordPress version is coming soon and bringing a brand new 'Twenty Fifteen' theme. Ecwid plugin is now totally ready for the upcoming changes and will work OK in the new environment. Feel free to upgrade your site to Wordpress 4.1 as soon as it's released.
-- **A few minor improvements and bugfixes for the new "Add Store" button released in the version 2.7**
+- A few minor improvements and bugfixes for the new "Add Store" button released in the version 2.7
 
 = 2.7.1 =
 - Fixed a few issues with the store appearance settings that were discovered in the recently released update (v2.7)
