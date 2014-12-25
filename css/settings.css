@@ -47,9 +47,44 @@
 	box-shadow: none;
 }
 
+.pure-control-group.small-input > div {
+	display: table-cell;
+	vertical-align: middle;
+	position: relative;
+}
+
+.pure-control-group.small-input .label {
+	width: 265px;
+	font-weight: bold;
+}
+
+.pure-control-group.small-input .input > div {
+	width: 45px;
+	text-align: center;
+	vertical-align: middle;
+	z-index: 10;
+	position: relative;
+	left: 265px;
+}
+
+.pure-control-group.small-input .input input {
+	margin: 0px auto;
+}
+
+.pure-control-group.small-input .label > * {
+	position: relative;
+	left: -45px;
+}
+
 /* 2.8 compatibility for left menu icon */
 .wp-menu-image>a>img {
 display: none;
+}
+
+@media screen and (max-width: 782px) {
+	.ecwid-settings {
+		width: 100%;
+	}
 }
 
 .ecwid-settings {
@@ -105,7 +140,6 @@ display: none;
 .ecwid-settings.appearance-settings input[type=text] {
 	font-size: 13px;
 	padding: 5px 3px 4px 3px;
-	outline: 1px solid white;
 	outline-offset: 0px;
 }
 
@@ -157,26 +191,46 @@ display: none;
 	transition: background-image .3s, border-color .3s, font-weight .3s;
 }
 
-.ecwid-pb-view-size.grid .main-area {
-	background-image: url(../images/grid-default.png);
-}
-
-.ecwid-pb-view-size.list .main-area {
-	background-image: url(../images/list-default.png);
-}
-
-.ecwid-pb-view-size.table .main-area {
-	background-image: url(../images/table-default.png);
-}
 
 .ecwid-pb-view-size .main-area {
 	width: 116px;
 	height: 82px;
-	border: 2px solid #d1eef6;
+	border: 2px solid rgb(125, 209, 227);
+  border-color: rgba(125, 209, 227, .5);
 	border-radius: 2px;
 	float: left;
 	background-position: 50% 50%;
 	background-repeat: no-repeat;
+	text-align: center;
+}
+
+.ecwid-pb-view-size .main-area svg {
+	margin-top: 7px;
+}
+
+.ecwid-pb-view-size .main-area path,
+.ecwid-pb-view-size .main-area rect {
+	fill: rgb(125, 209, 227);
+}
+
+.ecwid-pb-view-size .fallback-image {
+	width: 100px;
+	height: 66px;
+	background-repeat: no-repeat;
+	margin-top:7px;
+	margin-left:8px;
+}
+
+.ecwid-pb-view-size .grid-image {
+	background-image: url(../images/grid.png);
+}
+
+.ecwid-pb-view-size .list-image {
+	background-image: url(../images/list.png);
+}
+
+.ecwid-pb-view-size .table-image {
+	background-image: url(../images/table.png);
 }
 
 .ecwid-pb-view-size .right {
@@ -252,19 +306,17 @@ display: none;
 }
 
 .general-settings .greeting-box {
-	background: url(../images/store_inprogress.png);
-	background-repeat: no-repeat;
-	background-position: 18px 3px;
 	height: 141px;
-	padding-left: 190px;
 	padding-bottom: 12px;
-	display: table-cell;
-	vertical-align: middle;
 }
 
-.general-settings .greeting-box.complete {
-	background-image: url(../images/store_ready.png);
-	height: 141px;
+.general-settings .greeting-box .image-container {
+	padding-right: 20px;
+}
+
+.general-settings .greeting-box > div {
+	display: table-cell;
+	vertical-align: middle;
 }
 
 .general-settings .greeting-box .main-message {
@@ -274,9 +326,9 @@ display: none;
 }
 
 .general-settings .greeting-box .secondary-message {
-	font-size: 18px;
-	padding-top: 6px;
-	line-height: 20px;
+	font-size: 17px;
+	padding-top: 13px;
+	line-height: 23px;
 }
 
 .general-settings ol {
@@ -306,7 +358,12 @@ display: none;
 }
 
 .general-settings .ecwid-account-buttons .pure-button {
-	margin: 20px 17px 20px 0px;
+	margin: 5px 17px 5px 0px;
+}
+
+.general-settings .ecwid-account-buttons {
+	padding: 20px 0px;
+	margin-bottom: -5px;
 }
 
 .general-settings p.note {
@@ -349,6 +406,12 @@ display: none;
 	vertical-align: middle;
 	width: 640px;
 }
+
+.general-settings .section.account-section {
+	height: 40px;
+	margin-bottom: 10px;
+}
+
 
 .general-settings .section .left {
 	display: table-cell;
