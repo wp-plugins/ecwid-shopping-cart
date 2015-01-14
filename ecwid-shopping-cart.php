@@ -606,7 +606,7 @@ function ecwid_get_product_and_category($category_id, $product_id) {
 }
 
 function ecwid_seo_title($content) {
-    if (isset($_GET['_escaped_fragment_']) && ecwid_is_api_enabled() && (doing_action('wp_head') || doing_action('wp_title'))) {
+    if (isset($_GET['_escaped_fragment_']) && ecwid_is_api_enabled()) {
     $params = ecwid_parse_escaped_fragment($_GET['_escaped_fragment_']);
     $ecwid_seo_title = '';
 
