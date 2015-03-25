@@ -39,7 +39,7 @@
 
 			}
 
-			var classname = el.id.match(/widget.*ecwid(.*)-/);
+			var classname = el.id.match(/ecwid(.*)-__i__/);
 			if (classname) {
 				classname = 'ecwid-widget-' + classname[1];
 				jQuery(el).addClass('ecwid-widget')
@@ -48,4 +48,17 @@
 			}
 		});
 	}
+
+	jQuery('.drop-down').each(function(idx, el) {
+		jQuery(el).find('>span').click(function (e) {
+			jQuery(e.target).closest('.drop-down').addClass('hover');
+
+			jQuery(window).bind('click.ecwidDropDown', function(e) {
+				if (jQuery(e.target).closest('.drop-down')[0] != el) {
+					jQuery(window).unbind('.ecwidDropDown');
+					jQuery(el).removeClass('hover');
+				}
+			});
+		})
+	});
 });

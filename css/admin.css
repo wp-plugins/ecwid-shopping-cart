@@ -93,7 +93,7 @@ div.ecwid-message {
 }
 
 .ecwid-message .ecwid-message-buttons > div {
-	display: table-cell;
+	display: inline-block;
 	vertical-align: middle;
 }
 
@@ -102,8 +102,12 @@ div.ecwid-message {
 }
 
 .ecwid-message .ecwid-message-buttons > div:last-child {
-	text-align: right;
-	width: 100%;
+	position: absolute;
+
+	padding-left: 0px;
+
+	top: 0px;
+	right: 0px;
 }
 
 .ecwid-message .ecwid-message-buttons > div a{
@@ -122,13 +126,39 @@ div.ecwid-message {
 }
 
 .ecwid-message .ecwid-message-hide:before {
-	content: "\e605";
+	content: "\e606";
 	font-family: ecwid-icons;
 	font-size: 26px;
 	position: relative;
 	left: 1px;
 	top: 6px;
 }
+
+@media screen and (max-width: 700px) {
+	.ecwid-message .ecwid-message-buttons > div:last-child {
+		position: inherit;
+	}
+
+
+	.ecwid-message .ecwid-message-buttons > div:not(:first-child) {
+		padding-left: 0px;
+	}
+
+	.ecwid-message .ecwid-message-buttons > div {
+		display: block;
+	}
+
+	.ecwid-message .ecwid-message-buttons > div a {
+		text-align: center;
+		white-space: normal;
+		width: 100%;
+	}
+}
+
+body[class*="_page_ecwid"] .ecwid-message {
+	margin: 20px 20px 20px 0px;
+}
+
 
 .ecwid-message.dev {
 	outline: 2px solid red;
@@ -147,16 +177,17 @@ div.ecwid-message {
   letter-spacing: -0.22px;
 }
 
-.widget-top.ecwid-widget-highlighted {
+#available-widgets .widget-top.ecwid-widget-highlighted {
 	background: #1d7ac4;
 	color: white;
+	font-weight: normal;
 }
 
-.ecwid-widget .widget-top h4 {
+#available-widgets .ecwid-widget .widget-top h4 {
 	padding-left: 42px;
 }
 
-.ecwid-widget .widget-top h4:before {
+#available-widgets .ecwid-widget .widget-top h4:before {
 	font-size: 20px;
 	position: absolute;
 	top: 12px;
@@ -178,11 +209,11 @@ div.ecwid-message {
 	color: #1d7ac4;
 	opacity: .5;
 }
-.ecwid-widget .widget-top:hover h4:before {
+#available-widgets .ecwid-widget .widget-top:hover h4:before {
 	opacity: 1;
 }
 
-.ecwid-widget .widget-top.ecwid-widget-highlighted h4:before {
+#available-widgets .ecwid-widget .widget-top.ecwid-widget-highlighted h4:before {
 	color: white;
 	opacity: 1;
 }
@@ -212,27 +243,30 @@ div.ecwid-message {
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.widget-top.ecwid-widget-badge h4:before {
-	content: "\e602";;
-}
-
-.widget-top.ecwid-widget-minicart h4:before,
-.widget-top.ecwid-widget-minicart_miniview h4:before {
-	content: "\e600";
-}
-
-.widget-top.ecwid-widget-vcategories h4:before {
-	content: "\e601";
-}
-
-.widget-top.ecwid-widget-categories h4:before {
-	content: "\e601";
-}
-
-.widget-top.ecwid-widget-search h4:before {
+#available-widgets .widget-top.ecwid-widget-badge h4:before {
 	content: "\e603";
 }
 
-.widget-top.ecwid-widget-storelink h4:before {
+#available-widgets .widget-top.ecwid-widget-minicart h4:before,
+#available-widgets .widget-top.ecwid-widget-minicart_miniview h4:before
+{
+	content: "\e601";
+}
+
+#available-widgets .widget-top.ecwid-widget-vcategories h4:before,
+#available-widgets .widget-top.ecwid-widget-categories h4:before
+{
+	content: "\e602";
+}
+
+#available-widgets .widget-top.ecwid-widget-search h4:before {
 	content: "\e604";
+}
+
+#available-widgets .widget-top.ecwid-widget-storelink h4:before {
+	content: "\e605";
+}
+
+#available-widgets .widget-top.ecwid-widget-recentlyviewed h4:before {
+	content: "\e600";
 }
