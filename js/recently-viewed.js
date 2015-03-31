@@ -24,7 +24,7 @@ jQuery.widget('ecwid.recentlyViewedProducts', jQuery.ecwid.productsList, {
 
 					setTimeout(function() {
 						self.addViewedProduct(product);
-					}, 300);
+					}, 500);
 				}
 			}
 		);
