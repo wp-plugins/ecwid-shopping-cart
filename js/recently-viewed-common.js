@@ -1,5 +1,3 @@
-debugger;
-
 (function() {
 
 if (typeof jQuery == 'undefined') {
