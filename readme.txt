@@ -109,6 +109,7 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 == Changelog ==
 = 3.0.1 =
 - Added Russian translation of the new plugin settings and registration pages
+- Temporary fix for low quality images in the recently viewed products sidebar widget
 - Fixed a few layout issues on the new registration page in the plugin backend
 
 
