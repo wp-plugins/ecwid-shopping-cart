@@ -199,7 +199,7 @@ msgstr ""
 msgid "Single Sign-On Secret Key is an option that allows your customers access to your WordPress site as well as the Ecwid shopping cart. When customers log in to your site, they will automatically be logged in to your Ecwid store as well. It makes sense to enable this feature if your visitors actually create accounts in your WordPress website."
 msgstr ""
 
-msgid "In order to enable this feature, opt to use a secret key. You will find this key in your Ecwid control panel, at \"System Settings > API > Single Sign-On API\" page. This feature is available for <a href=\"http://www.ecwid.com/compare-plans.html\" target=\"_blank\">paid users</a> only."
+msgid "In order to enable this feature, opt to use a secret key. You will find this key in your Ecwid control panel, at \"System Settings > Apps > Legacy API Keys > Single Sign-On Secret Key\" page. This feature is available for <a href=\"http://www.ecwid.com/compare-plans.html\" target=\"_blank\">paid users</a> only."
 msgstr ""
 
 msgid "Save changes"
@@ -301,25 +301,25 @@ msgstr ""
 msgid "Plugin is installed successfully!"
 msgstr ""
 
-msgid "There are just a few steps left to start selling<br />on your WordPress site"
+msgid "There are just a few steps left to start selling<br /> on your WordPress site"
 msgstr ""
 
-msgid "There are few little steps left to start selling<br />on your WordPress site"
+msgid "There are few little steps left to start selling<br /> on your WordPress site"
 msgstr ""
 
 msgid "Register"
 msgstr ""
 
-msgid "Create a free Ecwid account to manage your<br />store and inventory. No credit card required"
+msgid "Create a free Ecwid account to manage your store and inventory.<br /> No credit card required"
 msgstr ""
 
 msgid "Connect"
 msgstr ""
 
-msgid "Add your Ecwid store to your site<br />in two clicks"
+msgid "Add your Ecwid store to your site <nobr>in two clicks</nobr>"
 msgstr ""
 
-msgid "Connect your Ecwid store to this site<br />in two clicks"
+msgid "Connect your Ecwid store to this site <nobr>in two clicks</nobr>"
 msgstr ""
 
 msgid "Start selling"
@@ -376,7 +376,7 @@ msgstr ""
 msgid "Compatible with your theme"
 msgstr ""
 
-msgid "Ecwid is compatible with your<br>“Responsive” WordPress theme<br>out of the box."
+msgid "Ecwid is compatible with your<br>“%s” WordPress theme<br>out of the box."
 msgstr ""
 
 msgid "Free and always up to date"
@@ -451,12 +451,8 @@ msgstr ""
 msgid "Ecwid plugin settings"
 msgstr ""
 
-msgid "Save and close"
-msgstr ""
-
 msgid "Your store will be shown here!"
 msgstr ""
 
 msgid "Demo Store"
 msgstr ""
-

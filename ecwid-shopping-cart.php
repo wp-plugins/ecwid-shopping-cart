@@ -5,7 +5,7 @@ Plugin URI: http://www.ecwid.com?source=wporg
 Description: Ecwid is a free full-featured shopping cart. It can be easily integrated with any Wordpress blog and takes less than 5 minutes to set up.
 Text Domain: ecwid-shopping-cart
 Author: Ecwid Team
-Version: 3.0
+Version: 3.0.1
 Author URI: http://www.ecwid.com?source=wporg
 */
 
@@ -243,6 +243,10 @@ function ecwid_add_frontend_styles() {
 	wp_register_script('ecwid-products-list-js', plugins_url('ecwid-shopping-cart/js/products-list.js'), array('jquery-ui-widget'));
 	wp_register_style('ecwid-products-list-css', plugins_url('ecwid-shopping-cart/css/products-list.css'));
 	wp_enqueue_style('ecwid-css', plugins_url('ecwid-shopping-cart/css/frontend.css'));
+
+	if (is_active_widget(false, false, 'ecwidrecentlyviewed')) {
+		wp_enqueue_script('ecwid-recently-viewed', plugins_url('ecwid-shopping-cart/js/recently-viewed-common.js'), array('jquery', 'utils'), false, true);
+	}
 }
 
 function ecwid_load_textdomain() {
@@ -731,10 +735,10 @@ function ecwid_content_started($content)
 
 function ecwid_wrap_shortcode_content($content, $name)
 {
-    return "<!-- Ecwid shopping cart plugin v 3.0 -->"
+    return "<!-- Ecwid shopping cart plugin v 3.0.1 -->"
 		   . ecwid_get_scriptjs_code()
 	       . "<div class=\"ecwid-shopping-cart-$name\">$content</div>"
-		   . "<!-- END Ecwid Shopping Cart v 3.0 -->";
+		   . "<!-- END Ecwid Shopping Cart v 3.0.1 -->";
 }
 
 function ecwid_get_scriptjs_code($force_lang = null) {
@@ -1168,7 +1172,7 @@ EOT;
 		$id = wp_insert_post( $my_post );
 		update_option('ecwid_store_page_id', $id);
 
-		if (ecwid_get_theme_identification() == 'Responsive') {
+		if (ecwid_get_theme_identification() == 'responsive') {
 			update_post_meta($id, '_wp_page_template', 'full-width-page.php');
 			update_option("ecwid_show_search_box", 'Y');
 		}
