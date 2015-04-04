@@ -70,7 +70,7 @@ jQuery.widget('ecwid.recentlyViewedProducts', jQuery.ecwid.productsList, {
 			}
 		}
 
-		return sort.reverse().slice(0, this.options.max);
+		return sort.reverse().slice(0, this.option('max')).reverse();
 	}
 });
 

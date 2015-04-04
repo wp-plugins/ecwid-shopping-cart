@@ -19,7 +19,6 @@ if (wpCookies.get('test_ecwid_shopping_cart_recently_products_cookie') != 'test_
 
 Ecwid.OnPageLoaded.add(function(page) {
 	if (page.type == 'PRODUCT') {
-		debugger;
 		var productInfo = fetchProductInfo(page.productId);
 		saveProductToCookies(productInfo);
 	}
@@ -37,7 +36,6 @@ var fetchProductInfo = function(productId) {
 var saveProductToCookies = function(product) {
 	var cookieName = 'ecwid-shopping-cart-recently-viewed';
 
-	debugger;
 	var cookie = JSON.parse(wpCookies.get(cookieName));
 
 	if (cookie == null || typeof(cookie) != 'object') {
