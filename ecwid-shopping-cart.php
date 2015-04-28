@@ -5,7 +5,7 @@ Plugin URI: http://www.ecwid.com?source=wporg
 Description: Ecwid is a free full-featured shopping cart. It can be easily integrated with any Wordpress blog and takes less than 5 minutes to set up.
 Text Domain: ecwid-shopping-cart
 Author: Ecwid Team
-Version: 3.0.2
+Version: 3.1
 Author URI: http://www.ecwid.com?source=wporg
 */
 
@@ -32,6 +32,7 @@ add_action('sm_buildmap', 'ecwid_build_google_xml_sitemap');
 
 // Needs to be in both front-end and back-end to allow admin zone recognize the shortcode
 add_shortcode('ecwid_productbrowser', 'ecwid_productbrowser_shortcode');
+add_shortcode('ecwid', 'ecwid_shortcode');
 
 add_action( 'plugins_loaded', 'ecwid_init_integrations' );
 
@@ -59,7 +60,6 @@ if ( is_admin() ){
   add_shortcode('ecwid_searchbox', 'ecwid_searchbox_shortcode');
   add_shortcode('ecwid_categories', 'ecwid_categories_shortcode');
   add_shortcode('ecwid_product', 'ecwid_product_shortcode');
-	add_shortcode('ecwid', 'ecwid_shortcode');
   add_action('init', 'ecwid_backward_compatibility');
   add_action('send_headers', 'ecwid_503_on_store_closed');
   add_action('template_redirect', 'ecwid_404_on_broken_escaped_fragment');
@@ -239,6 +239,10 @@ HTML;
 
 }
 
+add_action('wp_ajax_ecwid_get_product_info', 'ecwid_ajax_get_product_info' );
+add_action('wp_ajax_nopriv_ecwid_get_product_info', 'ecwid_ajax_get_product_info' );
+
+
 function ecwid_add_frontend_styles() {
 	wp_register_script('ecwid-products-list-js', plugins_url('ecwid-shopping-cart/js/products-list.js'), array('jquery-ui-widget'));
 	wp_register_style('ecwid-products-list-css', plugins_url('ecwid-shopping-cart/css/products-list.css'));
@@ -246,6 +250,15 @@ function ecwid_add_frontend_styles() {
 
 	if (is_active_widget(false, false, 'ecwidrecentlyviewed')) {
 		wp_enqueue_script('ecwid-recently-viewed', plugins_url('ecwid-shopping-cart/js/recently-viewed-common.js'), array('jquery', 'utils'), false, true);
+
+		wp_localize_script(
+			'ecwid-products-list-js',
+			'wp_ecwid_products_list_vars',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'is_api_available' => ecwid_is_paid_account()
+			)
+		);
 	}
 }
 
@@ -642,7 +655,7 @@ function ecwid_meta_description() {
 
 	$description = preg_replace('![\p{Z}\s]{1,}!u', ' ', $description);
 	$description = trim($description, " \t\xA0\n\r"); // Space, tab, non-breaking space, newline, carriage return
-	$description = mb_substr($description, 0, 160);
+	$description = mb_substr($description, 0, 160, 'UTF-8');
 	$description = htmlspecialchars($description, ENT_COMPAT, 'UTF-8');
 
     echo <<<HTML
@@ -770,10 +783,10 @@ function ecwid_content_started($content)
 
 function ecwid_wrap_shortcode_content($content, $name)
 {
-    return "<!-- Ecwid shopping cart plugin v 3.0.2 -->"
+    return "<!-- Ecwid shopping cart plugin v 3.1 -->"
 		   . ecwid_get_scriptjs_code()
 	       . "<div class=\"ecwid-shopping-cart-$name\">$content</div>"
-		   . "<!-- END Ecwid Shopping Cart v 3.0.2 -->";
+		   . "<!-- END Ecwid Shopping Cart v 3.1 -->";
 }
 
 function ecwid_get_scriptjs_code($force_lang = null) {
@@ -1142,6 +1155,19 @@ function ecwid_parse_escaped_fragment($escaped_fragment) {
 	return $return;
 }
 
+function ecwid_ajax_get_product_info() {
+	$id = $_GET['id'];
+
+	if (ecwid_is_api_enabled()) {
+		$api = ecwid_new_product_api();
+		$product = $api->get_product($id);
+
+		echo json_encode($product);
+	}
+
+	die();
+}
+
 function ecwid_store_activate() {
 	$my_post = array();
 	$content = <<<EOT
@@ -1353,7 +1379,7 @@ function ecwid_register_admin_styles($hook_suffix) {
 
 function ecwid_register_settings_styles($hook_suffix) {
 
-	if ( ($hook_suffix != 'post.php' && $hook_suffix != 'post_new.php') && strpos($hook_suffix, 'ecwid') === false) return;
+	if ( ($hook_suffix != 'post.php' && $hook_suffix != 'post-new.php') && strpos($hook_suffix, 'ecwid') === false) return;
 
 	wp_enqueue_style('ecwid-settings-pure-css', plugins_url('ecwid-shopping-cart/css/pure-min.css'), array(), '', 'all');
 	wp_enqueue_style('ecwid-settings-css', plugins_url('ecwid-shopping-cart/css/settings.css'), array(), '', 'all');
@@ -1443,6 +1469,9 @@ function ecwid_get_categories_for_selector() {
 		$api = ecwid_new_product_api();
 		$categories = $api->get_all_categories();
 		$by_id = array();
+
+		if (empty($categories)) return array();
+
 		if (is_array($categories)) {
 			foreach ($categories as $key => $category) {
 				$by_id[$category['id']] = $category;
@@ -1518,12 +1547,12 @@ function get_ecwid_store_id() {
 }
 
 function ecwid_dashboard_widget_function() {
-echo "<a href=\"https://my.ecwid.com/\" target=\"_blank\">Go to the Ecwid Control Panel</a><br /><br /><a href=\"http://kb.ecwid.com/\" target=\"_blank\">Ecwid Knowledge Base</a>&nbsp;|&nbsp;<a href=\"http://www.ecwid.com/forums/\" target=\"_blank\">Ecwid Forums</a>";
-} 
+	require_once ECWID_PLUGIN_DIR . 'templates/wp-dashboard-widget.php';
+}
 
 function ecwid_add_dashboard_widgets() {
   if (current_user_can('administrator')) {
-    wp_add_dashboard_widget('ecwid_dashboard_widget','Ecwid Links', 'ecwid_dashboard_widget_function');	
+    wp_add_dashboard_widget('ecwid_dashboard_widget', __('Recommendations for Your Online Store', 'ecwid-shopping-cart'), 'ecwid_dashboard_widget_function');
   }
 }
 
@@ -1990,7 +2019,6 @@ class EcwidRecentlyViewedWidget extends WP_Widget {
 		if ($recently_viewed && $recently_viewed->store_id != get_ecwid_store_id()) {
 			setcookie('ecwid-shopping-cart-recently-viewed', null, strftime('-1 day'));
 		}
-
 	}
 
 	function widget($args, $instance) {
@@ -2008,6 +2036,8 @@ class EcwidRecentlyViewedWidget extends WP_Widget {
 			echo $before_title . $title . $after_title;
 
 		echo ecwid_get_scriptjs_code();
+
+		$store_link_title = empty($instance['store_link_title']) ? __('View Products', 'ecwid-shopping-cart') : $instance['store_link_title'];
 
 		$recently_viewed = false;
 		if (isset($_COOKIE['ecwid-shopping-cart-recently-viewed'])) {
@@ -2069,12 +2099,17 @@ HTML;
 
 		echo "</div>";
 
+		if (empty($recently_viewed->products)) {
+			echo '<a class="show-if-empty" href="' . ecwid_get_store_page_url() . '">' . $store_link_title . '</a>';
+		}
+
 		echo $after_widget;
 	}
 
 	function update($new_instance, $old_instance){
 		$instance = $old_instance;
 		$instance['title'] = strip_tags(stripslashes($new_instance['title']));
+		$instance['store_link_title'] = strip_tags(stripslashes($new_instance['store_link_title']));
 		$num = intval($new_instance['number_of_products']);
 		if ($num > $this->max || $num < $this->min) {
 			$num = $this->default;
@@ -2088,15 +2123,18 @@ HTML;
 		$instance = wp_parse_args( (array) $instance,
 			array(
 				'title' => __('Recently Viewed Products', 'ecwid-shopping-cart'),
+				'store_link_title' => __('View Products', 'ecwid-shopping-cart'),
 				'number_of_products' => 3
 			)
 		);
 
 		$title = htmlspecialchars($instance['title']);
+		$store_link_title = htmlspecialchars($instance['store_link_title']);
 		$number_of_products = $instance['number_of_products'];
 		if ($number_of_products)
 
 		echo '<p><label for="' . $this->get_field_name('title') . '">' . __('Title') . ': <input style="width:100%;" id="' . $this->get_field_id('title') . '" name="' . $this->get_field_name('title') . '" type="text" value="' . $title . '" /></label></p>';
+		echo '<p><label for="' . $this->get_field_name('store_link_title') . '">' . __('Store Link Title', 'ecwid-shopping-cart') . ': <input style="width:100%;" id="' . $this->get_field_id('store_link_title') . '" name="' . $this->get_field_name('store_link_title') . '" type="text" value="' . $store_link_title . '" /></label></p>';
 		echo '<p><label for="' . $this->get_field_name('number_of_products') . '">' . __( 'Number of products to show', 'ecwid-shopping-cart' ) . ': <input style="width:100%;" id="' . $this->get_field_id('number_of_products') . '" name="' . $this->get_field_name('number_of_products') . '" type="number" min="' . $this->min . '" max="' . $this->max . '" value="' . $number_of_products . '" /></label></p>';
 	}
 
@@ -2251,17 +2289,22 @@ function ecwid_sso() {
     global $current_user;
     get_currentuserinfo();
 
+
+
     if ($current_user->ID) {
+			$meta = get_user_meta($current_user->ID);
+
+
         $user_data = array(
             'appId' => "wp_" . get_ecwid_store_id(),
             'userId' => "{$current_user->ID}",
             'profile' => array(
             'email' => $current_user->user_email,
             'billingPerson' => array(
-                'name' => $current_user->display_name
-            )
-            )
-        );
+                'name' => $meta['first_name'][0] . ' ' . $meta['last_name'][0]
+						)
+        )
+      );
    $user_data = base64_encode(json_encode($user_data));
     $time = time();
     $hmac = ecwid_hmacsha1("$user_data $time", $key);
