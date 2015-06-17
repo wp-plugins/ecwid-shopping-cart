@@ -1483,7 +1483,7 @@ function ecwid_get_register_link()
 	get_currentuserinfo();
 
 	$user_data = '';
-	if ($current_user->ID) {
+	if ($current_user->ID && function_exists('get_user_meta')) {
 		$meta = get_user_meta($current_user->ID);
 
 		$user_data = '&' . build_query(array(
