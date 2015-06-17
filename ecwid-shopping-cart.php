@@ -400,7 +400,7 @@ function ecwid_check_version()
 		do_action('ecwid_plugin_installed', $current_version);
 		add_option('ecwid_plugin_version', $current_version);
 
-		if (1 || get_option('ecwid_installation_date') % 4 == 0) {
+		if (get_option('ecwid_installation_date') % 4 == 0) {
 			update_option('ecwid_use_chameleon', true);
 		}
 
