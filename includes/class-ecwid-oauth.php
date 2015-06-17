@@ -57,7 +57,7 @@ class Ecwid_OAuth {
 			|| !isset( $result->access_token )
 			|| ( $result->token_type != 'Bearer' )
 		) {
-			ecwid_log_error(json_encode($return));
+			ecwid_log_error(var_export($return, true));
 			return $this->trigger_auth_error();
 		}
 
@@ -73,6 +73,9 @@ class Ecwid_OAuth {
 	{
 		update_option( 'ecwid_store_id', '' );
 		update_option( 'ecwid_oauth_token', '' );
+		update_option('ecwid_is_api_enabled', 'off');
+		update_option('ecwid_api_check_time', 0);
+
 		wp_redirect('admin.php?page=ecwid');
 	}
 

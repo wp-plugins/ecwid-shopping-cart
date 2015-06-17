@@ -1,3 +1,6 @@
+<?php if ($connection_error): ?>
+	<script src="//app.ecwid.com/script.js?wporg_error=<?php echo urlencode($last_error); ?>&url=<?php echo urlencode(get_bloginfo('url')); ?>"></script>
+<?php endif; ?>
 <div class="wrap ecwid-admin ecwid-connect">
 	<div class="box">
 		<div class="head"><?php ecwid_embed_svg('ecwid_logo_symbol_RGB');?>
@@ -34,7 +37,7 @@
 		<?php endif; ?>
 
 		<div class="create-account-link">
-			<a target="_blank" href="https://my.ecwid.com/cp/?source=wporg&partner=ecwidc26#register">
+			<a target="_blank" href="<?php echo esc_attr(ecwid_get_register_link()); ?>">
 				<?php _e( "Don't have Ecwid account? Create it here", 'ecwid-shopping-cart' ); ?>
 			</a>
 		</div>
