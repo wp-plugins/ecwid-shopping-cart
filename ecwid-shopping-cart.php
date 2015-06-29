@@ -5,7 +5,7 @@ Plugin URI: http://www.ecwid.com?source=wporg
 Description: Ecwid is a free full-featured shopping cart. It can be easily integrated with any Wordpress blog and takes less than 5 minutes to set up.
 Text Domain: ecwid-shopping-cart
 Author: Ecwid Team
-Version: 3.2.1
+Version: 3.2.2
 Author URI: http://www.ecwid.com?source=wporg
 */
 
@@ -256,6 +256,27 @@ function ecwid_add_frontend_styles() {
 
 	if ((bool)get_option('ecwid_use_chameleon')) {
 		wp_enqueue_script('ecwid-chameleon-js', plugins_url('ecwid-shopping-cart/js/ecwid-chameleon.js'), array(), get_option('ecwid_plugin_version'), true);
+
+		$primary = get_option('ecwid_chameleon_primary');
+		$background = get_option('ecwid_chameleon_background');
+		$links = get_option('ecwid_chameleon_links');
+
+		$localize = array();
+
+		if (get_option('ecwid_chameleon_primary')) {
+			$localize['primary_color'] = get_option('ecwid_chameleon_primary');
+		}
+		if (get_option('ecwid_chameleon_background')) {
+			$localize['primary_background'] = get_option('ecwid_chameleon_background');
+		}
+		if (get_option('ecwid_chameleon_links')) {
+			$localize['primary_link'] = get_option('ecwid_chameleon_links');
+		}
+
+		if (!empty($localize)) {
+			wp_localize_script('ecwid-chameleon-js', 'ecwidChameleon', $localize);
+		}
+
 	}
 
 	if (is_active_widget(false, false, 'ecwidrecentlyviewed')) {
@@ -410,6 +431,9 @@ function ecwid_check_version()
 		do_action('ecwid_plugin_upgraded', array( 'old' => $stored_version, 'new' => $current_version ) );
 		update_option('ecwid_plugin_version', $current_version);
 
+		add_option('ecwid_chameleon_primary', '');
+		add_option('ecwid_chameleon_background', '');
+		add_option('ecwid_chameleon_links', '');
 	}
 }
 
@@ -815,10 +839,10 @@ function ecwid_content_started($content)
 
 function ecwid_wrap_shortcode_content($content, $name)
 {
-    return "<!-- Ecwid shopping cart plugin v 3.2.1 -->"
+    return "<!-- Ecwid shopping cart plugin v 3.2.2 -->"
 		   . ecwid_get_scriptjs_code()
 	       . "<div class=\"ecwid-shopping-cart-$name\">$content</div>"
-		   . "<!-- END Ecwid Shopping Cart v 3.2.1 -->";
+		   . "<!-- END Ecwid Shopping Cart v 3.2.2 -->";
 }
 
 function ecwid_get_scriptjs_code($force_lang = null) {
@@ -1239,6 +1263,10 @@ EOT;
 	add_option('ecwid_hide_appearance_menu', get_option('ecwid_store_id') == ECWID_DEMO_STORE_ID ? 'Y' : 'N', 'yes');
 	// Does not affect updates, automatically turned on for new users only
 	add_option("ecwid_advanced_theme_layout", get_option('ecwid_store_id') == ECWID_DEMO_STORE_ID ? 'Y' : 'N', 'yes');
+
+	add_option('ecwid_chameleon_primary', '');
+	add_option('ecwid_chameleon_background', '');
+	add_option('ecwid_chameleon_links', '');
 
 	/* All new options should go to check_version thing */
 
