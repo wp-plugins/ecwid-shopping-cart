@@ -1,6 +1,3 @@
-<?php if ($connection_error): ?>
-<script src="//app.ecwid.com/script.js?805056&data_wporg_error=<?php echo urlencode($last_error); ?>&url=<?php echo urlencode(get_bloginfo('url')); ?>"></script>
-<?php endif; ?>
 <div class="ecwid-landing <?php echo $register ? 'register' : 'connect'; echo $connection_error ? ' conn-error': ''; ?>">
     <div class="ecwid-thank">
         <h1 class="on-register">
@@ -44,9 +41,9 @@
             <a target="_blank" href="<?php echo esc_attr(ecwid_get_register_link()); ?>" class="button button--blue on-register"  onclick="javascript:switch_to_connect()">
                 <?php _e('Create Ecwid store', 'ecwid-shopping-cart'); ?>
             </a>
-            <button class="button button--green on-connect" onclick="javascript:location.href='<?php echo esc_attr($ecwid_oauth->get_auth_dialog_url()); ?>';">
+            <a class="button button--green on-connect" href="admin-post.php?action=ecwid_connect">
                 <?php _e('Connect your store', 'ecwid-shopping-cart'); ?>
-            </button>
+            </a>
             <div class="button-description-mobile on-register">
                 <?php _e('Free registration, No credit card required', 'ecwid-shopping-cart'); ?>
             </div>
@@ -58,7 +55,7 @@
             </div>
             <div class="ecwid-button-description on-register">
                 <?php _e('Already have Ecwid account?', 'ecwid-shopping-cart'); ?>
-                <a href="<?php echo esc_attr($ecwid_oauth->get_auth_dialog_url()); ?>"><?php _e('Connect your store to Wordpress site', 'ecwid-shopping-cart'); ?></a>
+                <a href="admin-post.php?action=ecwid_connect"><?php _e('Connect your store to Wordpress site', 'ecwid-shopping-cart'); ?></a>
             </div>
             <div class="ecwid-button-description on-connect">
                 <?php _e('Don\'t have an Ecwid account?', 'ecwid-shopping-cart'); ?>
@@ -136,7 +133,7 @@
                     </div>
                     <div class="ecwid-features-bottom-item-text">
                         <h3><?php _e('Global Reach', 'ecwid-shopping-cart'); ?></h3>
-                        <p><?php _e('More than 700,000 merchants in 175 countries', 'ecwid-shopping-cart'); ?></p>
+                        <p><?php _e('More than 800,000 merchants in 175 countries', 'ecwid-shopping-cart'); ?></p>
                     </div>
                 </div>
             </div>
@@ -149,12 +146,12 @@
             <a target="_blank" href="<?php echo esc_attr(ecwid_get_register_link()); ?>" class="button button--blue on-register"  onclick="javascript:switch_to_connect();">
                 <?php _e('Get Started, Create Ecwid Account', 'ecwid-shopping-cart'); ?>
             </a>
-            <a class="button button--green on-connect" href="<?php echo esc_attr($ecwid_oauth->get_auth_dialog_url()); ?>';">
+            <a class="button button--green on-connect" href="admin-post.php?action=ecwid_connect">
                 <?php _e('Connect your store', 'ecwid-shopping-cart'); ?>
             </a>
             <div class="ecwid-button-description on-register">
                 <?php _e('Already have Ecwid account?', 'ecwid-shopping-cart'); ?>
-                <a href="<?php echo esc_attr($ecwid_oauth->get_auth_dialog_url()); ?>"><?php _e('Connect your store to this site', 'ecwid-shopping-cart'); ?></a>
+                <a href="admin-post.php?action=ecwid_connect"><?php _e('Connect your store to this site', 'ecwid-shopping-cart'); ?></a>
             </div>
             <div class="ecwid-button-description on-connect">
                 <?php _e('Don\'t have an Ecwid account?', 'ecwid-shopping-cart'); ?>

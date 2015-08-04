@@ -118,7 +118,7 @@ msgstr ""
 msgid "Recently Viewed Products"
 msgstr ""
 
-msgid "View Products"
+msgid "You have not viewed any product yet. Open store."
 msgstr ""
 
 msgid "Store Link Title"
@@ -280,13 +280,25 @@ msgstr ""
 msgid "Connect your store<br /> to this WordPress site"
 msgstr ""
 
+msgid "Enter your Store ID"
+msgstr ""
+
 msgid "Connect Ecwid store"
+msgstr ""
+
+msgid "Save and connect"
 msgstr ""
 
 msgid "After clicking button you need to login and accept permissions to use our plugin"
 msgstr ""
 
 msgid "Connection error - after clicking button you need to login and accept permissions to use our plugin. Please, try again."
+msgstr ""
+
+msgid "Where to find your Store ID:"
+msgstr ""
+
+msgid "Store ID is a unique identifier of your Ecwid account. You can find it in your Ecwid control panel: open the <a %s>Dashboard page</a> and find the \"<b>Store ID: NNNNNNN</b>\" text, where <b>NNNNNNN</b> is your Store&nbsp;ID."
 msgstr ""
 
 msgid "Don't have Ecwid account? Create it here"
@@ -418,7 +430,7 @@ msgstr ""
 msgid "Global Reach"
 msgstr ""
 
-msgid "More than 700,000 merchants in 175 countries"
+msgid "More than 800,000 merchants in 175 countries"
 msgstr ""
 
 msgid "Start selling <br>on your WordPress <nobr>site for free</nobr>"

@@ -400,8 +400,8 @@ msgstr "Эквид сертифицирован по стандарту Level 1 
 msgid "Global Reach"
 msgstr "Глобальное решение"
 
-msgid "More than 700,000 merchants in 175 countries"
-msgstr "Эквид уже используют 700,000 продавцов из 175 стран"
+msgid "More than 800,000 merchants in 175 countries"
+msgstr "Эквид уже используют 800,000 продавцов из 175 стран"
 
 msgid "Start selling <br>on your WordPress <nobr>site for free</nobr>"
 msgstr "Начните продавать<br>на своём Wordpress <nobr>сайте бесплатно</nobr>"
@@ -465,3 +465,18 @@ msgstr "Автоматическая подстройка внешнего ви�
 
 msgid "Please note this functionality is in beta. So if you run into difficulties or find problems with Chameleon, please <a %s>let us know</a>."
 msgstr "Мы добавили этот инструмент недавно, и он сейчас работает в бета-режиме. Если вы обнаружите какие-либо проблемы в его работе, пожалуйста, <a %s>сообщите нам</a>."
+
+msgid "Enter your Store ID"
+msgstr "Введите ваш ID Магазина"
+
+msgid "Where to find your Store ID:"
+msgstr "Где найти ID Магазина:"
+
+msgid "You will also get your Store ID by email."
+msgstr "Также вы получите ID вашего магазина на ваш e-mail."
+
+msgid "You have not viewed any product yet. Open store."
+msgstr "Вы пока что не просмотрели ни одного товара. Перейти в магазин."
+
+msgid "Store ID is a unique identifier of your Ecwid account. You can find it in your Ecwid control panel: open the <a %s>Dashboard page</a> and find the \"<b>Store ID: NNNNNNN</b>\" text, where <b>NNNNNNN</b> is your Store&nbsp;ID."
+msgstr "ID магазина – это уникальный номер аккаунта в Эквиде. Вы можете его найти в панели управления Эквид-магазина: откройте страницу \"<a %s>Консоль</a>\" и найдите текст \"<b>ID&nbsp;Магазина&nbsp;NNNNNNN</b>\". "

@@ -319,6 +319,7 @@ display: none;
 .ecwid-admin .box {
 	position: relative;
 	margin-top: 25px;
+	padding: 0 15px;
 
 	border: 1px solid #E5E5E5;
 	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
@@ -356,6 +357,7 @@ display: none;
 
 .ecwid-admin .box .head {
 	text-align: left;
+	margin-bottom: 20px;
 }
 
 .ecwid-admin .head svg {
@@ -386,14 +388,20 @@ display: none;
 .ecwid-connect .box .greeting-message {
 	margin-top: 11px;
 	line-height: 1.3em;
+	margin-bottom: 38px;
 }
 
 .ecwid-connect .box .connect-button {
-	margin-top: 38px;
+	margin-top: 8px;
+}
+.ecwid-connect .where-to-find-store-id {
+	margin-top: 25px;
+	margin-bottom: 0;
 }
 
 .ecwid-connect .box .note {
-	margin-top: 15px;
+	margin-top: 6px;
+	max-width: 760px;
 }
 
 .ecwid-connect .box .create-account-link {
@@ -411,6 +419,7 @@ display: none;
 	padding: 14px 40px;
 	border: 0px none;
 	border-radius: 4px;
+	width: 180px;
 
 	background: #59bb00;
 	color: white;
@@ -429,15 +438,36 @@ display: none;
 .ecwid-connect .box .note {
 	color: #A0A0A0;
 	line-height: 18px;
+	max-width: 400px;
 }
 
 .ecwid-connect .box .note.initial {
-	max-width: 250px;
 }
 
 .ecwid-connect .box .note.auth-error {
 	max-width: 350px;
 	color: red;
+}
+
+/* wpcontent to stress the rule without using !mportant */
+#wpcontent .ecwid-connect.no-oauth .with-oauth,
+#wpcontent .ecwid-connect.with-oauth .no-oauth
+{
+	display: none;
+}
+
+.ecwid-connect .connect-store-id {
+
+}
+
+.ecwid-connect #ecwid-store-id {
+	line-height: 38px;
+	width: 260px;
+	border-radius: 4px;
+	font-size: 16px;
+	font-weight: lighter;
+	padding-left: 10px;
+	font-family: 'Open Sans';
 }
 
 .ecwid-connect .box .create-account-link a {
