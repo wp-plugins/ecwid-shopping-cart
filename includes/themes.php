@@ -35,7 +35,7 @@ function ecwid_get_theme_identification()
 
 function ecwid_apply_theme($theme_name = null)
 {
-	$themes = array('bretheon', 'responsive', 'twentyfourteen', 'pagelines', 'envision', 'twentyfifteen', 'customizr', 'evolve');
+	$themes = array('bretheon', 'responsive', 'twentyfourteen', 'pagelines', 'envision', 'twentyfifteen', 'customizr', 'evolve', 'twentytwelve');
 
 	if (empty($theme_name)) {
 		$theme_name = ecwid_get_theme_identification();
@@ -44,7 +44,6 @@ function ecwid_apply_theme($theme_name = null)
 	$theme_file = '';
 
 	if (in_array($theme_name, $themes)) {
-
 		$theme_file = ECWID_THEMES_DIR . '/class-ecwid-theme-' . $theme_name . '.php';
 	}
 

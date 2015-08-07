@@ -5,7 +5,7 @@ Plugin URI: http://www.ecwid.com?source=wporg
 Description: Ecwid is a free full-featured shopping cart. It can be easily integrated with any Wordpress blog and takes less than 5 minutes to set up.
 Text Domain: ecwid-shopping-cart
 Author: Ecwid Team
-Version: 3.3
+Version: 3.3.1
 Author URI: http://www.ecwid.com?source=wporg
 */
 
@@ -833,10 +833,10 @@ function ecwid_content_started($content)
 
 function ecwid_wrap_shortcode_content($content, $name, $attrs)
 {
-    return "<!-- Ecwid shopping cart plugin v 3.3 --><!-- noptimize -->"
+    return "<!-- Ecwid shopping cart plugin v 3.3.1 --><!-- noptimize -->"
 		   . ecwid_get_scriptjs_code(@$attrs['lang'])
 	       . "<div class=\"ecwid-shopping-cart-$name\">$content</div>"
-		   . "<!-- /noptimize --><!-- END Ecwid Shopping Cart v 3.3 -->";
+		   . "<!-- /noptimize --><!-- END Ecwid Shopping Cart v 3.3.1 -->";
 }
 
 function ecwid_get_scriptjs_code($force_lang = null) {
@@ -1023,7 +1023,7 @@ function ecwid_product_shortcode($shortcode_attributes) {
 
 	update_option('ecwid_single_product_used', time());
 
-	return ecwid_wrap_shortcode_content($result, 'product');
+	return ecwid_wrap_shortcode_content($result, 'product', $shortcode_attributes);
 }
 
 function ecwid_shortcode($attributes)
@@ -1187,7 +1187,7 @@ function ecwid_productbrowser_shortcode($shortcode_params) {
 	</div>
 	<script data-cfasync="false" type="text/javascript"> xProductBrowser("categoriesPerRow=$ecwid_pb_categoriesperrow","views=grid($ecwid_pb_productspercolumn_grid,$ecwid_pb_productsperrow_grid) list($ecwid_pb_productsperpage_list) table($ecwid_pb_productsperpage_table)","categoryView=$ecwid_pb_defaultview","searchView=$ecwid_pb_searchview","style="$ecwid_default_category_str, "id=ecwid-store-$store_id");</script>
 EOT;
-    return ecwid_wrap_shortcode_content($s, 'product-browser', $params);
+    return ecwid_wrap_shortcode_content($s, 'product-browser', $shortcode_params);
 }
 
 
@@ -2164,7 +2164,7 @@ class EcwidRecentlyViewedWidget extends WP_Widget {
 		$recently_viewed = json_decode(stripslashes(@$_COOKIE['ecwid-shopping-cart-recently-viewed']));
 
 		if ($recently_viewed && $recently_viewed->store_id != get_ecwid_store_id()) {
-			setcookie('ecwid-shopping-cart-recently-viewed', null, strftime('-1 day'));
+			setcookie('ecwid-shopping-cart-recently-viewed', null, strtotime('-1 day'));
 		}
 	}
 
