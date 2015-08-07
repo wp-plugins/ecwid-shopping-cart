@@ -108,14 +108,14 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 
 == Changelog ==
 = 3.3 =
-- **Improved Single Sign On functionality.(( Single Sign On module has been available in Ecwid Wordpress plugin for a while – it makes it possible for your customers to sign into your Wordpress site and fully use the Ecwid store installed on the site without having to sign in to Ecwid. Now we added a few improvements that should make the feature more useful. In particular, the Ecwid's "Sign in" link was usually hidden when Single Sign On is used, supposing a customer should use the Wordpress login functionality. Now, we made the link visible and redirecting to the Joomla login form to avoid confusing the user who otherwise has to look for the area to login.
+- **Improved Single Sign On functionality.** Single Sign On module has been available in Ecwid Wordpress plugin for a while – it makes it possible for your customers to sign into your Wordpress site and fully use the Ecwid store installed on the site without having to sign in to Ecwid. Now we added a few improvements that should make the feature more useful. In particular, the Ecwid's "Sign in" link was usually hidden when Single Sign On is used, supposing a customer should use the Wordpress login functionality. Now, we made the link visible and redirecting to the Joomla login form to avoid confusing the user who otherwise has to look for the area to login.
 - **Storefront layout improvements for the "Evolve" WordPress theme.** We adjusted Ecwid plugin to better integrate with a popular and beautiful free Wordpress theme – Evolve. In particular, we fixed the borders appearing around every storefront element in this theme. Ecwid stores now look a way better on WordPress sites with Evolve theme to provide better customer experience on any device and to generate more sales in your store. 
 - **Compatibility with Autoptimize plugin.** One of Ecwid users recently reported an issue – the plugin doesn't work well on the sites with Autoptimize plugin installed. We fixed this in our plugin – it is now working well with Autoptimize. Feel free to use it on your site. 
 - **Improvements for Recently Viewed Products.** We included a few improvements and bug fixes for the recently viewed products widget in this release. 
 - **Fixed a bug in the "Add store" button in Wordpress editor.** The authors of Easy Image Collage plugin recently discovered a problem in the way Ecwid "Add store" button interacts with the other custom button in the Wordpress WYSIWYG editor. It's fixed now. Thanks to Easy Image Collage team.
 - A few improvements in the Chameleon skin tool.
 
-= 3.2.2= 
+= 3.2.2 = 
 - Fixed a few minor bugs in the Chameleon skin feature
 
 = 3.2.1 =
