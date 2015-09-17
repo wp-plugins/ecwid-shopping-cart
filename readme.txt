@@ -3,7 +3,7 @@ Contributors: ecwid
 Tags: ecwid, shopping cart, ecommerce, wordpress ecommerce, wp e-commerce, paypal, e-commerce, online store, store, shop, cart, online shop, shopping, digital goods, downloadable products, product catalog, ecomerce, products, facebook, f-commerce
 Requires at least: 2.8
 Tested up to: 4.3
-Stable tag: 3.4
+Stable tag: 3.4.1
 
 Ecwid is a full-featured shopping cart that can be added to any Wordpress site in less than 5 minutes. Start using Ecwid for free today.
 
@@ -107,6 +107,9 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 * [Ecwid site](http://www.ecwid.com/?source=wporg-plugin-site "Ecwid Site")
 
 == Changelog ==
+= 3.4.1 =
+- Minor fix for the "Twenty Sixteen” Wordpress theme
+
 = 3.4 =
 - **New look for the categories menu widget.** The old Ecwid categories menu widget (horizontal categories) was created long time ago and has been working in thousands of Ecwid stores. However, it doesn't adapt itself for the customer screen size as well as the other Ecwid widgets do. This has been always be a problem for responsive sites which look good on mobile devices. The new widget is fully responsive and looks great on mobile devices. To enable the new look of the categories widget on your site, navigate to Ecwid plugin settings -> "Advanced" tab and tick the "Enable the new category menu" checkbox. Once enabled, it will your store menu widget to the new look. If you don't have this option on the Advanced page, that means you installed the plugin after this change and the new categories are already enabled in your store. Enjoy! 
 - **Bigger product images for search engines.** The plugin used to generate small product thumbnails on special store pages for search engines. Now it displays the original large product pictures there to assure better indexing of your product images in Google. Please make sure you're on one of Ecwid paid plans to make your products along with the pictures indexable by search engines. 
