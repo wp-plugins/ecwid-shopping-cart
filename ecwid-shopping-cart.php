@@ -5,7 +5,7 @@ Plugin URI: http://www.ecwid.com?source=wporg
 Description: Ecwid is a free full-featured shopping cart. It can be easily integrated with any Wordpress blog and takes less than 5 minutes to set up.
 Text Domain: ecwid-shopping-cart
 Author: Ecwid Team
-Version: 3.4.1
+Version: 3.4.2
 Author URI: http://www.ecwid.com?source=wporg
 */
 
@@ -417,12 +417,6 @@ function ecwid_check_version()
 	$current_version = $plugin_data['Version'];
 	$stored_version = get_option('ecwid_plugin_version', null);
 
-
-	$migration_since_version = get_option('ecwid_plugin_migration_since_version', null);
-	if (is_null($migration_since_version)) {
-		update_option('ecwid_plugin_migration_since_version', $current_version);
-	}
-
 	$fresh_install = !$stored_version;
 	$upgrade = $stored_version && version_compare($current_version, $stored_version) > 0;
 
@@ -447,6 +441,19 @@ function ecwid_check_version()
 
 		add_option('ecwid_use_new_horizontal_categories', '');
 	}
+
+	$migration_since_version = get_option('ecwid_plugin_migration_since_version', null);
+
+	if ($migration_since_version == '3.4' || $migration_since_version == '3.4.1' || is_null($migration_since_version)) {
+
+		$install_date = get_option('ecwid_installation_date');
+		if ($install_date < strtotime("18 September 2015")) {
+			update_option('ecwid_plugin_migration_since_version', '0');
+		} elseif (is_null($migration_since_version)) {
+			update_option('ecwid_plugin_migration_since_version', $current_version);
+		}
+	}
+
 }
 
 function ecwid_migrations_is_original_plugin_version_older_than($version)
@@ -846,10 +853,10 @@ function ecwid_content_started($content)
 
 function ecwid_wrap_shortcode_content($content, $name, $attrs)
 {
-    return "<!-- Ecwid shopping cart plugin v 3.4.1 --><!-- noptimize -->"
+    return "<!-- Ecwid shopping cart plugin v 3.4.2 --><!-- noptimize -->"
 		   . ecwid_get_scriptjs_code(@$attrs['lang'])
 	       . "<div class=\"ecwid-shopping-cart-$name\">$content</div>"
-		   . "<!-- /noptimize --><!-- END Ecwid Shopping Cart v 3.4.1 -->";
+		   . "<!-- /noptimize --><!-- END Ecwid Shopping Cart v 3.4.2 -->";
 }
 
 function ecwid_get_scriptjs_code($force_lang = null) {
@@ -1377,7 +1384,6 @@ function ecwid_uninstall() {
     delete_option('ecwid_api_check_time');
     delete_option('ecwid_show_vote_message');
     delete_option("ecwid_sso_secret_key");
-    delete_option("ecwid_installation_date");
     delete_option('ecwid_hide_appearance_menu');
     delete_option("ecwid_advanced_theme_layout");
 
