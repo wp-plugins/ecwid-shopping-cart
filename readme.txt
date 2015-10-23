@@ -3,7 +3,7 @@ Contributors: ecwid
 Tags: ecwid, shopping cart, ecommerce, wordpress ecommerce, wp e-commerce, paypal, e-commerce, online store, store, shop, cart, online shop, shopping, digital goods, downloadable products, product catalog, ecomerce, products, facebook, f-commerce
 Requires at least: 2.8
 Tested up to: 4.3
-Stable tag: 3.4.2
+Stable tag: 3.4.3
 
 Ecwid is a full-featured shopping cart that can be added to any Wordpress site in less than 5 minutes. Start using Ecwid for free today.
 
@@ -107,8 +107,16 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 * [Ecwid site](http://www.ecwid.com/?source=wporg-plugin-site "Ecwid Site")
 
 == Changelog ==
+= 3.4.4 =
+- **Added compatibility with the "Add Meta Tags" plugin.** The "Add Meta Tags" plugin is a popular tool to set SEO meta tags on site pages. Previously it rewrote the titles and description that Ecwid generated for search engines on your site. It's now fixed so if you use the plugin, everything should work fine and Google will index your products pages properly.
+- **Fixed a problem in the recently viewed products widget caused by Autoptimize plugin.** Previously, if Autoptimize plugin is used on the site, the recently viewed products widget reset the displayed products when page reloads. We fixed that.
+- **A few internal improvements** to make the plugin more stable and ready for the upcoming cool features. Stay tuned! More updates are coming.
+
+= 3.4.3 =
+- Updated Italian and Turkish translations.
+
 = 3.4.2 =
-- The option for enabling new horizontal categories widget was not available sometimes. It was fixed.
+- Fixed option to enable the new categories widget released in the v.3.4 . 
 
 = 3.4.1 =
 - Minor fix for the "Twenty Sixteen” Wordpress theme
