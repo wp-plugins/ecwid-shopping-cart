@@ -1,6 +1,5 @@
 <?php
 
-
 include ECWID_PLUGIN_DIR . "lib/phpseclib/AES.php";
 
 class Ecwid_OAuth {
@@ -24,7 +23,7 @@ class Ecwid_OAuth {
 		add_action('admin_post_ecwid_disconnect', array($this, 'disconnect_store'));
 		add_action('admin_post_ecwid_show_reconnect', array($this, 'show_reconnect'));
 
-        $this->crypt = new Crypt_AES();
+        $this->crypt = new Ecwid_Crypt_AES();
 		$this->_init_crypt();
 
 		$this->_load_state();
@@ -261,13 +260,14 @@ class Ecwid_OAuth {
 
 	protected function _load_state() {
 		if (isset($_COOKIE['ecwid_oauth_state'])) {
-			$this->state = unserialize( $_COOKIE['ecwid_oauth_state'] );
+			$this->state = @unserialize( $_COOKIE['ecwid_oauth_state'] );
 		} else {
 			$this->state = new stdClass();
 			$this->state->reconnect_scopes = array();
 			$this->state->reconnect_error = '';
 			$this->state->return_url = '';
 			$this->state->reason = '';
+			$this->state->mode = self::MODE_CONNECT;
 		}
 
 		$this->state->create_store_clicked = @$_COOKIE['ecwid_create_store_clicked'];
@@ -342,7 +342,7 @@ class Ecwid_OAuth {
 	}
 
 	protected function _is_reconnect() {
-		return $this->state->mode == self::MODE_RECONNECT;
+		return @$this->state->mode == self::MODE_RECONNECT;
 	}
 }
 
