@@ -107,6 +107,12 @@ http://codex.wordpress.org/Managing_Plugins#Installing_Plugins
 * [Ecwid site](http://www.ecwid.com/?source=wporg-plugin-site "Ecwid Site")
 
 == Changelog ==
+= 3.4.5 =
+- Updates and bug fixes for the new horizontal categories widget.
+- Fixed a layout issue in the "Categories" block on the store page management in the Wordpress admin backend.
+- Improved store connect functionality for the servers, which may have troubles connecting with the Ecwid API. 
+- A few minor bug fixes and improvements to make the plugin more stable.
+
 = 3.4.4 =
 - **Added compatibility with the "Add Meta Tags" plugin.** The "Add Meta Tags" plugin is a popular tool to set SEO meta tags on site pages. Previously it rewrote the titles and description that Ecwid generated for search engines on your site. It's now fixed so if you use the plugin, everything should work fine and Google will index your products pages properly.
 - **Fixed a problem in the recently viewed products widget caused by Autoptimize plugin.** Previously, if Autoptimize plugin is used on the site, the recently viewed products widget reset the displayed products when page reloads. We fixed that.
